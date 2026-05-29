@@ -51,8 +51,8 @@ https://github.com/cvalverdem/custom-data-table/releases
 1. Ve a **Organization Settings** → **Process**
 2. Selecciona tu **Inherited Process** existente
 3. Haz clic en el **Work item type** que quieras modificar (User Story, Task, Bug, etc.)
-4. Ve a la pestaña **Fields**
-5. Haz clic en **New field**:
+4. Ve a la pestaña **Layout**
+5. En la sección **Fields**, haz clic en **New field**:
    - Nombre: "Tabla Dinámica" (o el que prefieras)
    - Tipo: **Text (multiple lines)** ← importante para almacenar JSON
 
