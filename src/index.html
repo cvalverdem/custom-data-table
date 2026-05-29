@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Tabla personalizada</title>
+    <style>
+      :root {
+        --az-font: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        --az-font-size: 13px;
+        --az-radius: 4px;
+        --az-bg: #ffffff;
+        --az-surface: #ffffff;
+        --az-text: #242424;
+        --az-muted: #616161;
+        --az-border: #e1e1e1;
+        --az-hover: #f3f2f1;
+        --az-primary: #0078d4;
+        --az-primary-hover: #106ebe;
+        --az-danger: #c50f1f;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --az-bg: #1f1f1f;
+          --az-surface: #2b2b2b;
+          --az-text: #f3f3f3;
+          --az-muted: #b5b5b5;
+          --az-border: #3a3a3a;
+          --az-hover: #313131;
+          --az-primary: #3aa0ff;
+          --az-primary-hover: #2895ff;
+        }
+      }
+
+      html, body { background: transparent; }
+      .azdo-card {
+        font-family: var(--az-font);
+        font-size: var(--az-font-size);
+        color: var(--az-text);
+        background: var(--az-surface);
+        border-radius: var(--az-radius);
+        padding: 8px 10px;
+      }
+      .azdo-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+      .azdo-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .azdo-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 28px;
+        padding: 0 10px;
+        border: 1px solid var(--az-border);
+        border-radius: var(--az-radius);
+        background: var(--az-primary);
+        color: #fff;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .azdo-btn:hover {
+        background: var(--az-primary-hover);
+        border-color: var(--az-primary-hover);
+      }
+      .azdo-btn.btn-remove {
+        background: var(--az-danger);
+        border-color: var(--az-danger);
+        color: #fff;
+        font-size: 11px;
+        padding: 2px 8px;
+        height: 24px;
+      }
+      .azdo-btn.btn-remove:hover {
+        background: #a80e1f;
+        border-color: #a80e1f;
+      }
+      .azdo-validation-message {
+        color: #d13438;
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: 6px;
+        min-height: 18px;
+        display: inline-flex;
+        align-items: center;
+      }
+      .azdo-table-wrap {
+        border: 1px solid var(--az-border);
+        border-radius: var(--az-radius);
+        overflow-x: auto;
+      }
+      .azdo-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .azdo-table thead th {
+        background: var(--az-surface);
+        border-bottom: 1px solid var(--az-border);
+        color: var(--az-text);
+        font-weight: 600;
+        padding: 6px 8px;
+      }
+      .azdo-table tbody td {
+        border-top: 1px solid var(--az-border);
+        padding: 6px 8px;
+        vertical-align: middle;
+      }
+
+      #gridTable input[type="text"],
+      #gridTable input[type="number"],
+      #gridTable input[type="date"],
+      #gridTable input[type="datetime-local"],
+      #gridTable select,
+      #gridTable textarea {
+        width: 100%;
+        min-width: 0;
+        height: 26px;
+        border: 1px solid var(--az-border);
+        border-radius: 3px;
+        background: var(--az-bg);
+        color: var(--az-text);
+        padding: 2px 4px;
+        box-sizing: border-box;
+        font-size: 12px;
+      }
+      #gridTable input:focus,
+      #gridTable select:focus,
+      #gridTable textarea:focus {
+        outline: none;
+        border-color: var(--az-primary);
+        box-shadow: 0 0 0 1px var(--az-primary);
+      }
+      #gridTable input[type="checkbox"] {
+        width: auto;
+        height: auto;
+        min-width: auto;
+        padding: 0;
+      }
+      #gridTable input[type="datetime-local"] {
+        font-size: 11px;
+        height: 30px;
+        padding: 3px 6px;
+      }
+      #gridTable textarea {
+        min-height: 52px;
+        resize: vertical;
+        line-height: 1.25;
+        padding-top: 4px;
+        padding-bottom: 4px;
+      }
+      #gridTable .field-error {
+        border-color: #d13438 !important;
+        box-shadow: 0 0 0 1px #d13438 !important;
+      }
+      #gridTable .row-error {
+        background-color: rgba(209, 52, 56, 0.06);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="azdo-card">
+      <div class="azdo-card-header">
+        <div class="azdo-toolbar">
+          <button id="addRowBtn" type="button" class="azdo-btn">
+            <span class="bowtie-icon bowtie-math-plus"></span>
+            <span>Agregar fila</span>
+          </button>
+          <span id="validationMessage" class="azdo-validation-message" aria-live="polite"></span>
+          <span id="status" class="azdo-status"></span>
+        </div>
+      </div>
+      <div class="azdo-table-wrap">
+        <table id="gridTable" class="azdo-table">
+          <thead><tr id="gridHeaderRow"></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      window.SDK = window.SDK || {};
+      window.define = function (deps, factory) { factory(window.SDK); };
+      window.define.amd = true;
+    </script>
+    <script src="https://unpkg.com/azure-devops-extension-sdk@4.0.2/SDK.min.js"></script>
+    <script>
+      try { delete window.define; } catch (e) { window.define = undefined; }
+      (function () {
+        const STATUS_TRANSLATIONS = {
+          "Pending changes…": "Cambios pendientes…",
+          "Ready": "Listo",
+          "Error al inicializar": "Error al inicializar",
+          "Servicio no inicializado": "Servicio no inicializado",
+          "No se pudo actualizar el campo": "No se pudo actualizar el campo",
+          "Cambios aplicados al formulario": "Cambios aplicados al formulario",
+          "Hay errores de validación": "Hay errores de validación",
+          "Load error": "Error al cargar"
+        };
+
+        let workItemService = null;
+        let dataFieldRefName = "Custom.DataTableJSON";
+        let tableConfig = null;
+        let lastSyncedPayload = "";
+        let syncTimeout = null;
+        let dirtyTimeout = null;
+        let isLoadingData = false;
+        let skipNextFieldChanged = 0;
+
+        function setStatus(msg) {
+          const translated = STATUS_TRANSLATIONS[msg] || msg;
+          const statusEl = document.getElementById("status");
+          if (statusEl) statusEl.textContent = translated;
+        }
+
+        function setValidationMessage(message) {
+          const el = document.getElementById("validationMessage");
+          if (el) el.textContent = message || "";
+        }
+
+        function pad2(n) {
+          return String(n).padStart(2, "0");
+        }
+
+        function toLocalDateTimeValue(value) {
+          if (!value) return "";
+          const raw = String(value).trim();
+          if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)) return raw;
+
+          const d = new Date(raw);
+          if (!isNaN(d.getTime())) {
+            return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+          }
+
+          return raw.replace(" ", "T").substring(0, 16);
+        }
+
+        function normalizeDateTimeForStorage(value) {
+          if (!value) return "";
+          const raw = String(value).trim();
+          if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)) return raw;
+          return toLocalDateTimeValue(raw);
+        }
+
+        function defaultConfig() {
+          return {
+            columns: [
+              { id: "descripcion", name: "Descripción", dataType: "textArea", required: true, width: "55%" },
+              { id: "responsable", name: "Responsable", dataType: "string", required: true, width: "25%" },
+              { id: "fechaInicio", name: "Fecha y hora inicio", dataType: "date", required: true, width: "10%" },
+              { id: "fechaFin", name: "Fecha y hora fin", dataType: "date", required: true, width: "10%" }
+            ]
+          };
+        }
+
+        function normalizeDataType(type) {
+          const raw = String(type || "string").trim().toLowerCase();
+          if (raw === "textarea" || raw === "textArea".toLowerCase()) return "textarea";
+          if (["string", "number", "boolean", "date", "dropdown"].includes(raw)) return raw;
+          return "string";
+        }
+
+        function getConfiguredTable() {
+          const cfg = SDK.getConfiguration ? (SDK.getConfiguration() || {}) : {};
+          const raw = cfg.witInputs && cfg.witInputs.ColumnConfiguration ? cfg.witInputs.ColumnConfiguration : "";
+          let parsed = defaultConfig();
+
+          if (raw) {
+            try {
+              const candidate = JSON.parse(raw);
+              if (candidate && Array.isArray(candidate.columns) && candidate.columns.length > 0) {
+                parsed = candidate;
+              }
+            } catch (e) {
+              console.error("ColumnConfiguration inválido, usando configuración por defecto:", e);
+            }
+          }
+
+          parsed.columns = (parsed.columns || []).map(function (col) {
+            return {
+              id: String(col.id || "").trim(),
+              name: String(col.name || col.id || "").trim(),
+              dataType: normalizeDataType(col.dataType),
+              required: !!col.required,
+              defaultValue: col.defaultValue,
+              width: col.width || "",
+              options: Array.isArray(col.options) ? col.options : []
+            };
+          }).filter(function (col) {
+            return col.id && col.name;
+          });
+
+          if (!parsed.columns.length) {
+            parsed = defaultConfig();
+          }
+
+          parsed.rules = Array.isArray(parsed.rules) ? parsed.rules : [];
+          return parsed;
+        }
+
+        function createHeader() {
+          const header = document.getElementById("gridHeaderRow");
+          header.innerHTML = "";
+
+          const thIndex = document.createElement("th");
+          thIndex.textContent = "#";
+          thIndex.style.width = "40px";
+          header.appendChild(thIndex);
+
+          tableConfig.columns.forEach(function (col) {
+            const th = document.createElement("th");
+            th.textContent = col.name;
+            if (col.width) th.style.width = col.width;
+            header.appendChild(th);
+          });
+
+          const thAction = document.createElement("th");
+          thAction.textContent = "Acción";
+          header.appendChild(thAction);
+        }
+
+        function createControl(column, value) {
+          const dataType = normalizeDataType(column.dataType);
+          let control;
+
+          if (dataType === "textarea") {
+            control = document.createElement("textarea");
+            control.value = value != null ? String(value) : (column.defaultValue != null ? String(column.defaultValue) : "");
+          } else if (dataType === "number") {
+            control = document.createElement("input");
+            control.type = "number";
+            control.step = "any";
+            control.value = value != null && value !== "" ? String(value) : (column.defaultValue != null ? String(column.defaultValue) : "");
+          } else if (dataType === "boolean") {
+            control = document.createElement("input");
+            control.type = "checkbox";
+            control.checked = value != null ? !!value : !!column.defaultValue;
+          } else if (dataType === "date") {
+            control = document.createElement("input");
+            control.type = "datetime-local";
+            control.step = "300";
+            const source = value != null && value !== "" ? value : (column.defaultValue != null ? column.defaultValue : "");
+            control.value = toLocalDateTimeValue(source);
+          } else if (dataType === "dropdown") {
+            control = document.createElement("select");
+            const options = Array.isArray(column.options) ? column.options : [];
+            options.forEach(function (opt) {
+              const option = document.createElement("option");
+              option.value = String(opt);
+              option.textContent = String(opt);
+              control.appendChild(option);
+            });
+            const selected = value != null && value !== "" ? String(value) : (column.defaultValue != null ? String(column.defaultValue) : "");
+            if (selected) control.value = selected;
+          } else {
+            control = document.createElement("input");
+            control.type = "text";
+            control.value = value != null ? String(value) : (column.defaultValue != null ? String(column.defaultValue) : "");
+          }
+
+          control.dataset.colId = column.id;
+          control.dataset.dataType = dataType;
+          return control;
+        }
+
+        function renumberRows() {
+          document.querySelectorAll("#gridTable tbody tr").forEach(function (tr, idx) {
+            const numCell = tr.children[0];
+            if (numCell) numCell.textContent = String(idx + 1);
+          });
+        }
+
+        function createRow(rowData) {
+          const tbody = document.querySelector("#gridTable tbody");
+          const row = document.createElement("tr");
+          const nextIndex = tbody ? tbody.children.length + 1 : 1;
+
+          const cellIndex = document.createElement("td");
+          cellIndex.textContent = String(rowData && rowData._id ? rowData._id : nextIndex);
+          row.appendChild(cellIndex);
+
+          tableConfig.columns.forEach(function (col) {
+            const cell = document.createElement("td");
+            const control = createControl(col, rowData ? rowData[col.id] : undefined);
+            cell.appendChild(control);
+            row.appendChild(cell);
+          });
+
+          const actionCell = document.createElement("td");
+          const delBtn = document.createElement("button");
+          delBtn.type = "button";
+          delBtn.className = "azdo-btn btn-remove";
+          delBtn.textContent = "Eliminar";
+          delBtn.addEventListener("click", function () {
+            row.remove();
+            renumberRows();
+            markDirty();
+            validateTable(false);
+            scheduleAutoSync();
+          });
+          actionCell.appendChild(delBtn);
+          row.appendChild(actionCell);
+
+          tbody.appendChild(row);
+        }
+
+        function getControlValue(column, control) {
+          const dataType = normalizeDataType(column.dataType);
+          if (!control) return "";
+
+          if (dataType === "boolean") return !!control.checked;
+          if (dataType === "number") {
+            const raw = String(control.value || "").trim();
+            return raw === "" ? "" : Number(raw);
+          }
+          if (dataType === "date") return normalizeDateTimeForStorage(control.value);
+          return control.value;
+        }
+
+        function getRows() {
+          const rows = [];
+          const trs = document.querySelectorAll("#gridTable tbody tr");
+          trs.forEach(function (tr, idx) {
+            const row = { _id: idx + 1 };
+            tableConfig.columns.forEach(function (col) {
+              const control = tr.querySelector(`[data-col-id="${col.id}"]`);
+              row[col.id] = getControlValue(col, control);
+            });
+            rows.push(row);
+          });
+          return rows;
+        }
+
+        function clearValidationState() {
+          document.querySelectorAll("#gridTable tbody tr").forEach(function (tr) {
+            tr.classList.remove("row-error");
+          });
+          document.querySelectorAll("#gridTable .field-error").forEach(function (el) {
+            el.classList.remove("field-error");
+            el.removeAttribute("title");
+          });
+          setValidationMessage("");
+        }
+
+        function markFieldError(el, message) {
+          if (!el) return;
+          el.classList.add("field-error");
+          el.setAttribute("title", message);
+          const tr = el.closest("tr");
+          if (tr) tr.classList.add("row-error");
+        }
+
+        function firstDateRuleError(rows) {
+          const rules = Array.isArray(tableConfig.rules) ? tableConfig.rules : [];
+          for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+            const row = rows[rowIndex];
+            const tr = document.querySelectorAll("#gridTable tbody tr")[rowIndex];
+            for (const rule of rules) {
+              if (!rule || !rule.type) continue;
+              const type = String(rule.type).toLowerCase();
+
+              if (type === "dateorder") {
+                const startId = rule.startColumnId || rule.start || "";
+                const endId = rule.endColumnId || rule.end || "";
+                if (!startId || !endId) continue;
+
+                const start = normalizeDateTimeForStorage(row[startId]);
+                const end = normalizeDateTimeForStorage(row[endId]);
+                if (!start || !end) continue;
+
+                if (start >= end) {
+                  const startControl = tr ? tr.querySelector(`[data-col-id="${startId}"]`) : null;
+                  const endControl = tr ? tr.querySelector(`[data-col-id="${endId}"]`) : null;
+                  const message = rule.message || "La fecha inicial debe ser menor que la fecha final";
+                  markFieldError(startControl, message);
+                  markFieldError(endControl, message);
+                  return message;
+                }
+              }
+            }
+          }
+          return "";
+        }
+
+        function validateTable(showFeedback) {
+          clearValidationState();
+          const rows = document.querySelectorAll("#gridTable tbody tr");
+
+          let hasRequiredError = false;
+
+          rows.forEach(function (tr) {
+            tableConfig.columns.forEach(function (col) {
+              if (!col.required) return;
+
+              const control = tr.querySelector(`[data-col-id="${col.id}"]`);
+              if (!control) return;
+
+              const type = normalizeDataType(col.dataType);
+              if (type === "boolean") return;
+
+              let empty = false;
+              if (type === "number") {
+                empty = String(control.value || "").trim() === "";
+              } else {
+                empty = String(control.value || "").trim() === "";
+              }
+
+              if (empty) {
+                hasRequiredError = true;
+                markFieldError(control, "Debe completar todos los campos");
+              }
+            });
+          });
+
+          if (hasRequiredError) {
+            setValidationMessage("Debe completar todos los campos");
+            if (showFeedback) setStatus("Hay errores de validación");
+            return false;
+          }
+
+          const dataRows = getRows();
+          const dateRuleMessage = firstDateRuleError(dataRows);
+          if (dateRuleMessage) {
+            setValidationMessage(dateRuleMessage);
+            if (showFeedback) setStatus("Hay errores de validación");
+            return false;
+          }
+
+          setValidationMessage("");
+          if (showFeedback) setStatus("Cambios aplicados al formulario");
+          return true;
+        }
+
+        function markDirty() {
+          clearTimeout(dirtyTimeout);
+          dirtyTimeout = setTimeout(function () {
+            setStatus("Pending changes…");
+          }, 100);
+        }
+
+        async function syncToField(showFeedback) {
+          if (!workItemService) {
+            if (showFeedback) setStatus("Servicio no inicializado");
+            return false;
+          }
+
+          if (!validateTable(showFeedback)) return false;
+
+          const payload = JSON.stringify(getRows());
+          if (payload === lastSyncedPayload) {
+            if (showFeedback) setStatus("Cambios aplicados al formulario");
+            return true;
+          }
+
+          try {
+            skipNextFieldChanged += 1;
+            const ok = await workItemService.setFieldValue(dataFieldRefName, payload);
+            if (!ok) {
+              if (showFeedback) setStatus("No se pudo actualizar el campo");
+              return false;
+            }
+
+            lastSyncedPayload = payload;
+            if (showFeedback) setStatus("Cambios aplicados al formulario");
+            return true;
+          } catch (e) {
+            console.error("Error al sincronizar la tabla:", e);
+            return false;
+          }
+        }
+
+        function scheduleAutoSync() {
+          clearTimeout(syncTimeout);
+          syncTimeout = setTimeout(function () {
+            syncToField(false);
+          }, 350);
+        }
+
+        async function load() {
+          if (!workItemService) return;
+          try {
+            let value = await workItemService.getFieldValue(dataFieldRefName);
+            if (typeof value !== "string") value = value == null ? "" : String(value);
+
+            let text = String(value)
+              .replace(/&quot;/g, '"')
+              .replace(/&#39;/g, "'")
+              .replace(/&lt;/g, "<")
+              .replace(/&gt;/g, ">")
+              .replace(/&amp;/g, "&");
+
+            let jsonText = null;
+            const start = text.indexOf("[");
+            const end = text.lastIndexOf("]");
+            if (start !== -1 && end !== -1 && end > start) jsonText = text.slice(start, end + 1);
+
+            let rows = [];
+            if (jsonText) {
+              try { rows = JSON.parse(jsonText); } catch (e) {}
+            }
+
+            const tbody = document.querySelector("#gridTable tbody");
+            tbody.innerHTML = "";
+            isLoadingData = true;
+            rows.forEach(function (row) { createRow(row); });
+            lastSyncedPayload = JSON.stringify(rows);
+            isLoadingData = false;
+            validateTable(false);
+            setStatus("Ready");
+          } catch (e) {
+            setStatus("Load error");
+          }
+        }
+
+        function wireEvents() {
+          document.getElementById("addRowBtn").addEventListener("click", function () {
+            createRow(null);
+            markDirty();
+            validateTable(false);
+            scheduleAutoSync();
+          });
+
+          const tbody = document.querySelector("#gridTable tbody");
+
+          tbody.addEventListener("input", function () {
+            if (isLoadingData) return;
+            markDirty();
+            validateTable(false);
+          });
+
+          tbody.addEventListener("change", function (event) {
+            if (isLoadingData) return;
+            markDirty();
+            validateTable(false);
+
+            const target = event.target;
+            if (!target) return;
+            const tag = (target.tagName || "").toLowerCase();
+            const type = (target.type || "").toLowerCase();
+
+            if (tag === "select") {
+              scheduleAutoSync();
+              return;
+            }
+            if (tag === "input" && (type === "checkbox" || type === "radio")) {
+              scheduleAutoSync();
+              return;
+            }
+          });
+
+          tbody.addEventListener("focusout", function (event) {
+            if (isLoadingData) return;
+
+            const target = event.target;
+            const next = event.relatedTarget;
+            if (!target) return;
+
+            const tag = (target.tagName || "").toLowerCase();
+            if (!(tag === "input" || tag === "select" || tag === "textarea")) return;
+
+            const active = document.activeElement;
+            if (tbody && ((next && tbody.contains(next)) || (active && tbody.contains(active)))) return;
+
+            clearTimeout(syncTimeout);
+            syncTimeout = setTimeout(function () {
+              syncToField(false);
+            }, 250);
+          });
+
+          document.addEventListener("visibilitychange", function () {
+            if (document.hidden) {
+              clearTimeout(syncTimeout);
+              syncToField(false);
+            }
+          });
+
+          window.addEventListener("pagehide", function () {
+            clearTimeout(syncTimeout);
+            syncToField(false);
+          });
+
+          document.addEventListener("pointerdown", function (event) {
+            const target = event.target;
+            if (target && tbody.contains(target)) return;
+
+            clearTimeout(syncTimeout);
+            syncTimeout = setTimeout(function () {
+              syncToField(false);
+            }, 0);
+          }, true);
+        }
+
+        SDK.init();
+
+        const handler = {
+          onLoaded: async function () {
+            try { await load(); } catch (e) {}
+          },
+          onUnloaded: async function () {
+            try { await syncToField(false); } catch (e) {}
+          },
+          onSaved: function () {},
+          onReset: async function () {
+            try {
+              await syncToField(false);
+              await load();
+            } catch (e) {}
+          },
+          onRefreshed: async function () {
+            try {
+              await syncToField(false);
+              await load();
+            } catch (e) {}
+          },
+          onFieldChanged: async function (args) {
+            try {
+              if (!args || !args.changedFields || !dataFieldRefName) return;
+              const changed = Object.keys(args.changedFields || {});
+              if (changed.indexOf(dataFieldRefName) >= 0) {
+                if (skipNextFieldChanged > 0) {
+                  skipNextFieldChanged -= 1;
+                  return;
+                }
+                await load();
+              }
+            } catch (e) {}
+          }
+        };
+
+        const contributionId = (function () {
+          try { return SDK.getContributionId ? SDK.getContributionId() : null; }
+          catch (e) { return null; }
+        })();
+
+        try { SDK.register("custom-data-table-control-dt-v3", handler); } catch (e) {}
+        if (contributionId) {
+          try { SDK.register(contributionId, handler); } catch (e) {}
+        }
+        try {
+          SDK.register("CentroDeCompetencias.custom-data-table-control-v10.custom-data-table-control-dt-v3", handler);
+        } catch (e) {}
+
+        SDK.ready().then(async function () {
+          try {
+            const cfg = SDK.getConfiguration() || {};
+            const picker = cfg.witInputs && cfg.witInputs.DataFieldRefName ? cfg.witInputs.DataFieldRefName.trim() : "";
+            const manual = cfg.witInputs && cfg.witInputs.DataFieldRefNameText ? cfg.witInputs.DataFieldRefNameText.trim() : "";
+            dataFieldRefName = picker || manual || dataFieldRefName;
+
+            tableConfig = getConfiguredTable();
+            createHeader();
+            wireEvents();
+
+            workItemService = await SDK.getService("ms.vss-work-web.work-item-form");
+            await load();
+
+            if (SDK.notifyLoadSucceeded) {
+              try { SDK.notifyLoadSucceeded(); } catch (e) {}
+            }
+          } catch (e) {
+            console.error("Error al inicializar el servicio del work item:", e);
+            if (SDK.notifyLoadFailed) {
+              try { SDK.notifyLoadFailed(e && e.message ? e.message : "Error al inicializar"); } catch (ignored) {}
+            }
+            setStatus("Error al inicializar");
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

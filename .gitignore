@@ -1,0 +1,13 @@
+node_modules/
+dist/
+*.vsix
+.DS_Store
+*.log
+.vscode/
+AUDIENCE_SLIDES.md
+COMPLETE_DEVELOPMENT_GUIDE.md
+PRESENTER_NOTES.md
+PRESENTATION_GUIDE.md
+HELLO_WORLD_COMPLETE_GUIDE.md
+EXTENSION_CONFIGURATION_LEVELS.md
+hello-world-extension/

@@ -1,0 +1,431 @@
+/* ---------- Azure DevOps look & feel (light/dark aware) ---------- */
+:root {
+  --az-font: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  --az-font-size: 13px;
+  --az-radius: 4px;
+
+  --az-bg: #ffffff;
+  --az-surface: #ffffff;
+  --az-text: #242424;
+  --az-muted: #616161;
+  --az-border: #e1e1e1;
+  --az-hover: #f3f2f1;
+  --az-primary: #0078d4;
+  --az-primary-hover: #106ebe;
+  --az-danger: #c50f1f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --az-bg: #1f1f1f;
+    --az-surface: #2b2b2b;
+    --az-text: #f3f3f3;
+    --az-muted: #b5b5b5;
+    --az-border: #3a3a3a;
+    --az-hover: #313131;
+    --az-primary: #3aa0ff;
+    --az-primary-hover: #2895ff;
+  }
+}
+
+html, body { background: transparent; }
+.azdo-card {
+  font-family: var(--az-font);
+  font-size: var(--az-font-size);
+  color: var(--az-text);
+  background: var(--az-surface);
+  /* border: 1px solid var(--az-border); */
+  border-radius: var(--az-radius);
+  padding: 8px 10px;
+}
+
+.azdo-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.azdo-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.azdo-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ---------- Buttons ---------- */
+.azdo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--az-border);
+  border-radius: var(--az-radius);
+  background: var(--az-bg);
+  color: var(--az-text);
+  font-size: 12px;
+  cursor: pointer;
+}
+.azdo-btn:hover { background: var(--az-hover); }
+.azdo-btn:focus { outline: 2px solid var(--az-primary); outline-offset: 1px; }
+
+.azdo-btn-primary {
+  background: var(--az-primary);
+  border-color: var(--az-primary);
+  color: #fff;
+}
+.azdo-btn-primary:hover { background: var(--az-primary-hover); border-color: var(--az-primary-hover); }
+
+.azdo-btn-icon {
+  width: 28px; height: 28px; padding: 0; justify-content: center;
+}
+
+/* Bowtie icons align nicely inside our buttons */
+.bowtie-icon { font-size: 14px; }
+
+/* ---------- Status text ---------- */
+.azdo-status {
+  color: var(--az-muted);
+  font-size: 12px;
+  user-select: none;
+}
+
+/* ---------- Table ---------- */
+.azdo-table-wrap { border: 1px solid var(--az-border); border-radius: var(--az-radius); }
+.azdo-table.dataTable thead th {
+  background: var(--az-surface);
+  border-bottom: 1px solid var(--az-border) !important;
+  color: var(--az-text);
+  font-weight: 600;
+  padding: 6px 8px !important;
+  cursor: pointer;
+  position: relative;
+}
+
+.azdo-table.dataTable thead th.sorting,
+.azdo-table.dataTable thead th.sorting_asc,
+.azdo-table.dataTable thead th.sorting_desc {
+  cursor: pointer;
+}
+
+.azdo-table.dataTable thead th.sorting:after,
+.azdo-table.dataTable thead th.sorting_asc:after,
+.azdo-table.dataTable thead th.sorting_desc:after {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'bowtie';
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.azdo-table.dataTable thead th.sorting:after {
+  content: '\E018'; /* bowtie-sort */
+}
+
+.azdo-table.dataTable thead th.sorting_asc:after {
+  content: '\E015'; /* bowtie-sort-ascending */
+}
+
+.azdo-table.dataTable thead th.sorting_desc:after {
+  content: '\E016'; /* bowtie-sort-descending */
+}
+
+/* Ensure Actions column is not sortable */
+.azdo-table.dataTable thead th:last-child {
+  cursor: default;
+}
+
+/* Filter row styling in thead */
+.azdo-table.dataTable thead tr.filter-row th {
+  background: var(--az-hover);
+  border-top: 1px solid var(--az-border) !important;
+  border-bottom: 1px solid var(--az-border) !important;
+  padding: 4px 8px !important;
+  font-weight: normal;
+}
+
+/* Column filter inputs */
+.azdo-table .column-filter {
+  width: 100%;
+  height: 24px;
+  border: 1px solid var(--az-border);
+  border-radius: 3px;
+  background: var(--az-bg);
+  color: var(--az-text);
+  padding: 2px 6px;
+  box-sizing: border-box;
+  font-size: 11px;
+  font-family: var(--az-font);
+}
+
+/* Option filters (simple dropdowns) */
+.azdo-table .option-filter {
+  cursor: pointer;
+  padding-right: 20px; /* Space for dropdown arrow */
+}
+
+.azdo-table .option-filter:focus {
+  outline: none;
+  border-color: var(--az-primary);
+  box-shadow: 0 0 0 1px var(--az-primary);
+}
+
+.azdo-table .column-filter:focus {
+  outline: none;
+  border-color: var(--az-primary);
+  box-shadow: 0 0 0 1px var(--az-primary);
+}
+
+.azdo-table .column-filter::placeholder {
+  color: var(--az-muted);
+  font-style: italic;
+}
+
+/* Select2 styling for filter dropdowns */
+.azdo-table .select2-container,
+.select2-container {
+  width: 100% !important;
+  z-index: 9999 !important;
+}
+
+.azdo-table .select2-container .select2-selection--single {
+  height: 24px !important;
+  border: 1px solid var(--az-border) !important;
+  border-radius: 3px !important;
+  background: var(--az-bg) !important;
+  color: var(--az-text) !important;
+  font-size: 11px !important;
+  font-family: var(--az-font) !important;
+}
+
+.azdo-table .select2-container .select2-selection--single .select2-selection__rendered {
+  color: var(--az-text) !important;
+  line-height: 22px !important;
+  padding-left: 6px !important;
+  padding-right: 20px !important;
+}
+
+.azdo-table .select2-container .select2-selection--single .select2-selection__arrow {
+  height: 22px !important;
+  right: 1px !important;
+}
+
+.azdo-table .select2-container--default .select2-selection--single:focus {
+  border-color: var(--az-primary) !important;
+  box-shadow: 0 0 0 1px var(--az-primary) !important;
+}
+
+/* Select2 dropdown styling */
+.select2-dropdown {
+  background: var(--az-bg) !important;
+  border: 1px solid var(--az-border) !important;
+  border-radius: 3px !important;
+  color: var(--az-text) !important;
+  font-size: 11px !important;
+  font-family: var(--az-font) !important;
+}
+
+.select2-results__option {
+  background: var(--az-bg) !important;
+  color: var(--az-text) !important;
+  padding: 4px 6px !important;
+}
+
+.select2-results__option--highlighted {
+  background: var(--az-hover) !important;
+  color: var(--az-text) !important;
+}
+
+.select2-search--dropdown .select2-search__field {
+  background: var(--az-bg) !important;
+  border: 1px solid var(--az-border) !important;
+  border-radius: 3px !important;
+  color: var(--az-text) !important;
+  font-size: 11px !important;
+  font-family: var(--az-font) !important;
+}
+
+/* Ensure Select2 works in all contexts */
+.select2-container .select2-selection--single {
+  height: 24px !important;
+  border: 1px solid var(--az-border) !important;
+  border-radius: 3px !important;
+  background: var(--az-bg) !important;
+  color: var(--az-text) !important;
+  font-size: 11px !important;
+  font-family: var(--az-font) !important;
+}
+
+.select2-container .select2-selection--single .select2-selection__rendered {
+  color: var(--az-text) !important;
+  line-height: 22px !important;
+  padding-left: 6px !important;
+  padding-right: 20px !important;
+}
+
+.select2-container .select2-selection--single .select2-selection__arrow {
+  height: 22px !important;
+  right: 1px !important;
+}
+
+.select2-container--default .select2-selection--single:focus {
+  border-color: var(--az-primary) !important;
+  box-shadow: 0 0 0 1px var(--az-primary) !important;
+}
+.azdo-table.dataTable tbody td {
+  border-top: 1px solid var(--az-border) !important;
+  padding: 6px 8px !important;
+  vertical-align: middle;
+}
+.azdo-table.dataTable.no-footer { border-bottom: 0; }
+
+/* Style DataTables controls to match Azure DevOps theme */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+  display: block !important;
+  color: var(--az-text);
+  font-size: 12px;
+  margin: 8px 0;
+}
+
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+  border: 1px solid var(--az-border);
+  border-radius: var(--az-radius);
+  background: var(--az-bg);
+  color: var(--az-text);
+  padding: 4px 6px;
+  font-size: 12px;
+}
+
+.dataTables_wrapper .dataTables_length select:focus,
+.dataTables_wrapper .dataTables_filter input:focus {
+  outline: none;
+  border-color: var(--az-primary);
+  box-shadow: 0 0 0 1px var(--az-primary);
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  border: 1px solid var(--az-border);
+  border-radius: var(--az-radius);
+  background: var(--az-bg);
+  color: var(--az-text) !important;
+  padding: 4px 8px;
+  margin: 0 2px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background: var(--az-hover) !important;
+  border-color: var(--az-border);
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  background: var(--az-primary) !important;
+  border-color: var(--az-primary);
+  color: #fff !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Ensure proper spacing between controls */
+.dataTables_wrapper .dataTables_length {
+  float: left;
+}
+
+.dataTables_wrapper .dataTables_filter {
+  float: right;
+}
+
+.dataTables_wrapper .dataTables_info {
+  float: left;
+  clear: both;
+  padding-top: 8px;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+  float: right;
+  clear: both;
+  padding-top: 8px;
+}
+
+/* ---------- Inputs inside cells ---------- */
+#gridTable input[type="text"],
+#gridTable input[type="number"],
+#gridTable input[type="date"],
+#gridTable select {
+  width: 100%;
+  height: 26px;
+  border: 1px solid var(--az-border);
+  border-radius: 3px;
+  background: var(--az-bg);
+  color: var(--az-text);
+  padding: 3px 6px;
+  box-sizing: border-box;
+  font-size: 12px;
+}
+#gridTable input[type="text"]:focus,
+#gridTable input[type="number"]:focus,
+#gridTable input[type="date"]:focus,
+#gridTable select:focus {
+  outline: none;
+  border-color: var(--az-primary);
+  box-shadow: 0 0 0 1px var(--az-primary);
+}
+
+/* Select dropdown specific styling */
+#gridTable select {
+  cursor: pointer;
+  padding-right: 20px; /* Space for dropdown arrow */
+}
+
+/* Checkbox baseline */
+#gridTable input[type="checkbox"] { transform: translateY(1px); }
+
+/* Delete button styling */
+#gridTable .btn-remove {
+  background: var(--az-danger);
+  border-color: var(--az-danger);
+  color: #fff;
+  font-size: 11px;
+  padding: 2px 8px;
+  height: 24px;
+}
+
+#gridTable .btn-remove:hover {
+  background: #a80e1f;
+  border-color: #a80e1f;
+}
+
+/* ---------- Hint + Debug ---------- */
+.azdo-hint {
+  margin-top: 8px;
+  color: var(--az-muted);
+  font-size: 12px;
+}
+.azdo-debug summary { cursor: pointer; margin-top: 8px; }
+.azdo-debug pre {
+  background: var(--az-bg);
+  border: 1px solid var(--az-border);
+  border-radius: var(--az-radius);
+  padding: 8px;
+  max-height: 160px;
+  overflow: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+}
