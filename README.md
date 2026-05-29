@@ -46,19 +46,26 @@ https://github.com/cvalverdem/custom-data-table/releases
 2. Busca "Custom Data Table" o sube el archivo `.vsix`
 3. Instala la extensión en tu organización
 
-### 3. Configurar un proceso heredado
+### 3. Configurar un proceso heredado (Inherited Process)
 
-1. **Organización Settings** → **Process**
-2. Crea un **proceso heredado** del proceso base (Agile, Scrum, etc.)
-3. Selecciona un tipo de elemento de trabajo (User Story, Task, etc.)
-4. Crea un nuevo campo de tipo **Text (multiple lines)** para almacenar los datos
+1. Ve a **Organization Settings** → **Process**
+2. Sobre el proceso base (Agile, Scrum, CMMI o Basic), haz clic en **"... "** → **Create inherited process**
+3. Asigna un nombre al proceso heredado (ej: "Mi Proceso Personalizado")
+4. Selecciona el proceso heredado y haz clic en un **Work item type** (User Story, Task, Bug, etc.)
+5. En la pestaña **Fields**, crea un nuevo campo:
+   - Haz clic en **New field**
+   - Nombre: "Tabla Dinámica" (o el nombre que prefieras)
+   - Tipo: **Text (multiple lines)** ← importante para almacenar JSON
 
-### 4. Agregar el control personalizado
+### 4. Agregar el control personalizado (Custom control) al Work Item Type
 
-1. En el proceso heredado, abre el tipo de elemento de trabajo
-2. Click en **"Add a custom control"**
-3. Selecciona **"Custom Data Table (DataTables) v3"**
-4. Configura las opciones en la pestaña **Options**
+1. En el mismo **Work item type** (ej: User Story), ve a la pestaña **Layout**
+2. Haz clic en **New group** o selecciona un grupo existente
+3. Dentro del grupo, haz clic en **Add custom control**
+4. En el desplegable, busca y selecciona **Custom Data Table (DataTables) v3**
+5. En el campo **Data field**, selecciona el campo "Text (multiple lines)" que creaste en el paso anterior
+6. En el campo **Column Configuration (JSON)**, pega tu configuración de columnas
+7. Haz clic en **Save work item type**
 
 ---
 
