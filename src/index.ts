@@ -29,6 +29,16 @@ interface ColumnDefinition {
 
 interface TableConfiguration {
   columns: ColumnDefinition[];
+  rules?: ValidationRule[];
+}
+
+interface ValidationRule {
+  type: 'dateOrder';
+  startColumnId?: string;
+  endColumnId?: string;
+  start?: string;  // alias for startColumnId
+  end?: string;    // alias for endColumnId
+  message?: string;
 }
 
 // Dynamic row type - key-value pairs with optional _id
@@ -151,10 +161,11 @@ function validateTable(showFeedback: boolean = false): boolean {
       if (input.length === 0) return;
       
       // Skip boolean type - checkboxes are always valid
-      if (col.dataType === 'boolean') return;
+      const dataType = normalizeDataType(col.dataType);
+      if (dataType === 'boolean') return;
       
       let empty = false;
-      if (col.dataType === 'number') {
+      if (dataType === 'number') {
         empty = String(input.val() || "").trim() === "";
       } else {
         empty = String(input.val() || "").trim() === "";
@@ -173,8 +184,74 @@ function validateTable(showFeedback: boolean = false): boolean {
     return false;
   }
   
+  // Check date order rules
+  const rules = columnConfig.rules || [];
+  if (rules.length > 0) {
+    for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+      const tr = rows[rowIndex];
+      for (const rule of rules) {
+        if (!rule || rule.type !== 'dateOrder') continue;
+        
+        const startId = rule.startColumnId || rule.start || "";
+        const endId = rule.endColumnId || rule.end || "";
+        if (!startId || !endId) continue;
+        
+        const startEl = $(tr).find(`input.dt-${startId}, select.dt-${startId}, textarea.dt-${startId}`);
+        const endEl = $(tr).find(`input.dt-${endId}, select.dt-${endId}, textarea.dt-${endId}`);
+        
+        if (startEl.length === 0 || endEl.length === 0) continue;
+        
+        const start = normalizeDateTimeForStorage(startEl.val());
+        const end = normalizeDateTimeForStorage(endEl.val());
+        if (!start || !end) continue;
+        
+        if (start >= end) {
+          const message = rule.message || "La fecha inicial debe ser menor que la fecha final";
+          markFieldError(startEl[0], message);
+          markFieldError(endEl[0], message);
+          setValidationMessage(message);
+          if (showFeedback) setStatus("Hay errores de validación");
+          return false;
+        }
+      }
+    }
+  }
+  
   setValidationMessage("");
   return true;
+}
+
+/* ───────────────────────── Utility functions ───────────────────────── */
+
+function pad2(n: number): string {
+  return String(n).padStart(2, "0");
+}
+
+function normalizeDataType(type: string | undefined): string {
+  const raw = String(type || "string").trim().toLowerCase();
+  if (raw === "textarea" || raw === "textArea") return "textArea";
+  if (["string", "number", "boolean", "date", "dropdown", "textArea"].includes(raw)) return raw;
+  return "string";
+}
+
+function toLocalDateTimeValue(value: any): string {
+  if (!value) return "";
+  const raw = String(value).trim();
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)) return raw;
+
+  const d = new Date(raw);
+  if (!isNaN(d.getTime())) {
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  }
+
+  return raw.replace(" ", "T").substring(0, 16);
+}
+
+function normalizeDateTimeForStorage(value: any): string {
+  if (!value) return "";
+  const raw = String(value).trim();
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)) return raw;
+  return toLocalDateTimeValue(raw);
 }
 
 /* Prefer picker → manual → default (survives Options tab flakiness) */
@@ -318,7 +395,10 @@ function generateCellInput(column: ColumnDefinition, data: any): string {
   const cssClass = `dt-${column.id}`;
   const requiredAttr = column.required ? 'required' : '';
   
-  switch (column.dataType) {
+  // Handle both 'textArea' and 'textarea' as dataType
+  const dataType = normalizeDataType(column.dataType);
+  
+  switch (dataType) {
     case 'string':
       return `<input class="${cssClass}" type="text" value="${escapedValue}" ${requiredAttr} />`;
     case 'textArea':
@@ -575,6 +655,48 @@ async function saveToField() {
   }
 }
 
+/* ───────────────────────── Sync helpers (HTML version features) ───────────────────────── */
+
+let syncTimeout: number | undefined;
+
+async function syncToField(showFeedback: boolean = false): Promise<boolean> {
+  if (!workItemService) {
+    if (showFeedback) setStatus("Servicio no inicializado");
+    return false;
+  }
+
+  if (!validateTable(showFeedback)) return false;
+
+  const payload = JSON.stringify(getRowsFromTable());
+  if (payload === lastWrittenPayload) {
+    if (showFeedback) setStatus("Cambios aplicados al formulario");
+    return true;
+  }
+
+  try {
+    skipFieldChangeOnce++;
+    const ok = await workItemService.setFieldValue(dataFieldRefName, payload);
+    if (!ok) {
+      if (showFeedback) setStatus("No se pudo actualizar el campo");
+      return false;
+    }
+
+    lastWrittenPayload = payload;
+    if (showFeedback) setStatus("Cambios aplicados al formulario");
+    return true;
+  } catch (e) {
+    log("Error al sincronizar la tabla:", e);
+    return false;
+  }
+}
+
+function scheduleAutoSync() {
+  clearTimeout(syncTimeout);
+  syncTimeout = window.setTimeout(() => {
+    syncToField(false);
+  }, 350);
+}
+
 /* ───────────────────────── Loading ───────────────────────── */
 
 async function loadFromField() {
@@ -673,9 +795,38 @@ function wireButtons() {
     });
     
     dt.row.add(newRow).draw(false);
-    if (!suppressDirty) markDirty();
+    if (!suppressDirty) {
+      validateTable(false);
+      markDirty();
+    }
   });
   saveBtn().addEventListener("click", saveToField);
+}
+
+/* Wire page events for auto-sync on visibility change, page hide, etc. */
+function wirePageEvents() {
+  // Save when user switches tabs/minimizes
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      clearTimeout(syncTimeout);
+      syncToField(false);
+    }
+  });
+
+  // Save when user navigates away
+  window.addEventListener("pagehide", () => {
+    clearTimeout(syncTimeout);
+    syncToField(false);
+  });
+
+  // Save when clicking outside the table
+  document.addEventListener("pointerdown", (event: Event) => {
+    const target = event.target as HTMLElement;
+    if (target && $("#gridTable")[0] && !($("#gridTable")[0] as HTMLElement).contains(target)) {
+      clearTimeout(syncTimeout);
+      syncTimeout = window.setTimeout(() => syncToField(false), 0);
+    }
+  }, true);
 }
 
 /* Try a couple of capitalization variants if needed */
@@ -700,14 +851,14 @@ const provider = () => ({
 
       // Apply font configuration first (before rendering anything)
       applyFontConfiguration();
-      
+
       // Apply tip visibility
       applyTipVisibility();
 
       // Load configurations
       dataFieldRefName = getConfiguredField();
       const columnConfig = getColumnConfiguration();
-      
+
       log("Column config loaded:", columnConfig);
 
       workItemService = await SDK.getService<IWorkItemFormService>(
@@ -730,6 +881,14 @@ const provider = () => ({
       await loadFromField(); // loadFromField now handles columnConfig internally
       setStatus("Ready"); // Clean status message
 
+      // Notify success
+      if (SDK.notifyLoadSucceeded) {
+        try { SDK.notifyLoadSucceeded(); } catch (e) { log("notifyLoadSucceeded error", e); }
+      }
+
+      // Wire up page events for auto-sync
+      wirePageEvents();
+
       (window as any).dtctl = { 
         version: VERSION, 
         addRow: () => addRowBtn().click(), 
@@ -740,6 +899,10 @@ const provider = () => ({
     } catch (e: any) {
       log("onLoaded error", e);
       setStatus("Load error: " + (e?.message ?? String(e)));
+      // Notify failure
+      if (SDK.notifyLoadFailed) {
+        try { SDK.notifyLoadFailed(e && e.message ? e.message : "Error al inicializar"); } catch (ignored) {}
+      }
     }
   },
 
@@ -757,7 +920,24 @@ const provider = () => ({
   },
 
   onSaved: async () => setStatus("Work item saved"),
-  onUnloaded: () => {},
+  
+  onReset: async () => {
+    try {
+      await syncToField(false);
+      await loadFromField();
+    } catch (e) { log("onReset error", e); }
+  },
+  
+  onRefreshed: async () => {
+    try {
+      await syncToField(false);
+      await loadFromField();
+    } catch (e) { log("onRefreshed error", e); }
+  },
+
+  onUnloaded: async () => {
+    try { await syncToField(false); } catch (e) { log("onUnloaded error", e); }
+  }
 });
 
 SDK.init();

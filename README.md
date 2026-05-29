@@ -2,7 +2,7 @@
 
 [![GitHub](https://img.shields.io/badge/GitHub-Repositorio-blue?logo=github)](https://github.com/cvalverdem/custom-data-table) [![Versión](https://img.shields.io/badge/versión-1.4.1-blue)](https://github.com/cvalverdem/custom-data-table)
 
-**Extensión que permite crear tablas personalizables dentro de los elementos de trabajo de Azure DevOps.** Cada columna puede tener su propio tipo de datos, validación requerida y configuración de ancho.
+**Extensión que permite crear tablas personalizables dentro de los elementos de trabajo de Azure DevOps.** Cada columna puede tener su propio tipo de datos, validación requerida, reglas de validación y configuración de ancho.
 
 ---
 
@@ -22,11 +22,14 @@
 ### Funcionalidades
 
 - **Validación de campos requeridos**: Los campos marcados como `required: true` muestran error visual y mensaje si están vacíos
+- **Reglas de validación de fechas**: Compara dos campos de fecha y valida que uno sea menor que el otro
 - **Guardado automático**: Los cambios se guardan automáticamente al escribir (debounce de 250ms)
+- **Guardado al abandonar la página**: Se guarda automáticamente cuando cambias de pestaña o cierras el navegador
 - **Compatibilidad con datos legacy**: Migra automáticamente datos de formatos anteriores
 - **Configuración de fuente**: Permite cambiar familia y tamaño de fuente
 - **Visibilidad del mensaje de ayuda**: Opción para mostrar/ocultar el tip
 - **Interfaz en español**: Todos los mensajes de estado están traducidos
+- **Notificación de éxito/error**: Notifica a Azure DevOps cuando la carga termina correctamente o falla
 
 ---
 
@@ -67,9 +70,12 @@ https://github.com/cvalverdem/custom-data-table/releases
 |-------|-------------|
 | **Data field (reference name)** | Campo de Azure DevOps que almacena el JSON de la tabla |
 | **Data field (manual entry)** | Respaldo si el selector no funciona |
-| **Column Configuration (JSON)** | Definición de las columnas en formato JSON |
+| **Column Configuration (JSON)** | Definición de las columnas y reglas en formato JSON |
+| **Font Family** | Familia de fuente para la tabla |
+| **Font Size** | Tamaño de fuente para la tabla |
+| **Show Tip Message** | Mostrar/ocultar el mensaje de ayuda |
 
-### Ejemplo de Configuración JSON
+### Ejemplo de Configuración JSON con Reglas de Fechas
 
 ```json
 {
@@ -102,6 +108,14 @@ https://github.com/cvalverdem/custom-data-table/releases
       "required": true,
       "width": "10%"
     }
+  ],
+  "rules": [
+    {
+      "type": "dateOrder",
+      "startColumnId": "fechaInicio",
+      "endColumnId": "fechaFin",
+      "message": "La fecha inicial debe ser menor que la fecha final"
+    }
   ]
 }
 ```
@@ -122,9 +136,62 @@ https://github.com/cvalverdem/custom-data-table/releases
 | `defaultValue` | any | No | Valor por defecto para filas nuevas |
 | `options` | string[] | Solo para dropdown | Lista de opciones disponibles |
 
-### Ejemplos de Configuración
+---
 
-#### Tabla Simple con Tareas
+## Reglas de Validación
+
+### Regla dateOrder
+
+Valida que la fecha de una columna sea menor que la fecha de otra columna.
+
+```json
+{
+  "rules": [
+    {
+      "type": "dateOrder",
+      "startColumnId": "fechaInicio",
+      "endColumnId": "fechaFin",
+      "message": "La fecha inicial debe ser menor que la fecha final"
+    }
+  ]
+}
+```
+
+**Propiedades:**
+| Propiedad | Descripción |
+|-----------|-------------|
+| `type` | Siempre `"dateOrder"` |
+| `startColumnId` | ID de la columna que debe tener la fecha menor (también acepta `start`) |
+| `endColumnId` | ID de la columna que debe tener la fecha mayor (también acepta `end`) |
+| `message` | Mensaje de error personalizado |
+
+**Ejemplo práctico - Registro de Reuniones:**
+
+```json
+{
+  "columns": [
+    { "id": "tema", "name": "Tema", "dataType": "textArea", "required": true },
+    { "id": "encargado", "name": "Encargado", "dataType": "string", "required": true },
+    { "id": "inicio", "name": "Hora inicio", "dataType": "date", "required": true },
+    { "id": "fin", "name": "Hora fin", "dataType": "date", "required": true },
+    { "id": "completado", "name": "Completado", "dataType": "boolean", "defaultValue": false }
+  ],
+  "rules": [
+    {
+      "type": "dateOrder",
+      "start": "inicio",
+      "end": "fin",
+      "message": "La hora de inicio debe ser anterior a la hora de fin"
+    }
+  ]
+}
+```
+
+---
+
+## Ejemplos de Configuración
+
+### Tabla Simple con Tareas
 
 ```json
 {
@@ -136,28 +203,36 @@ https://github.com/cvalverdem/custom-data-table/releases
 }
 ```
 
-#### Tabla con Prioridades
+### Tabla con Prioridades y Validación
 
 ```json
 {
   "columns": [
     { "id": "item", "name": "Elemento", "dataType": "textArea", "required": true },
     { "id": "prioridad", "name": "Prioridad", "dataType": "dropdown", "options": ["Alta", "Media", "Baja"], "defaultValue": "Media" },
-    { "id": "fecha", "name": "Fecha límite", "dataType": "date" }
+    { "id": "fechaLimite", "name": "Fecha límite", "dataType": "date" }
   ]
 }
 ```
 
-#### Tabla de Registro de Reuniones
+### Tabla de Seguimiento de Proyectos
 
 ```json
 {
   "columns": [
-    { "id": "tema", "name": "Tema", "dataType": "textArea", "required": true },
-    { "id": "encargado", "name": "Encargado", "dataType": "string", "required": true },
-    { "id": "inicio", "name": "Hora inicio", "dataType": "date", "required": true },
-    { "id": "fin", "name": "Hora fin", "dataType": "date", "required": true },
-    { "id": "completado", "name": "Completado", "dataType": "boolean", "defaultValue": false }
+    { "id": "tarea", "name": "Tarea", "dataType": "textArea", "required": true },
+    { "id": "responsable", "name": "Responsable", "dataType": "string" },
+    { "id": "fechaInicio", "name": "Fecha inicio", "dataType": "date", "required": true },
+    { "id": "fechaFin", "name": "Fecha fin", "dataType": "date", "required": true },
+    { "id": "estado", "name": "Estado", "dataType": "dropdown", "options": ["Pendiente", "En curso", "Completada"], "defaultValue": "Pendiente" }
+  ],
+  "rules": [
+    {
+      "type": "dateOrder",
+      "startColumnId": "fechaInicio",
+      "endColumnId": "fechaFin",
+      "message": "La fecha de inicio debe ser anterior a la fecha de fin"
+    }
   ]
 }
 ```
@@ -174,8 +249,11 @@ La extensión muestra mensajes de estado en español:
 | `Cargando...` | Cargando datos |
 | `Cambios pendientes…` | Guardando automáticamente |
 | `Guardado` | Guardado manual completado |
+| `Cambios aplicados al formulario` | Cambios guardados exitosamente |
 | `Error al inicializar` | Falló la inicialización |
-| `Hay errores de validación` | Campos requeridos vacíos |
+| `Error al cargar` | Error al cargar datos |
+| `Hay errores de validación` | Campos requeridos vacíos o fechas inválidas |
+| `La fecha inicial debe ser menor que la fecha final` | Error de validación de fechas |
 
 ---
 
@@ -225,7 +303,11 @@ custom-data-table/
 ### v1.4.1
 - Agregado soporte para `textArea` (campos multilínea)
 - Agregada validación de campos requeridos
+- Agregadas reglas de validación de fechas (`dateOrder`)
 - Sincronizadas traducciones entre versiones
+- Agregados eventos de guardado (visibilitychange, pagehide, pointerdown)
+- Agregados callbacks `onReset` y `onRefreshed`
+- Agregada notificación de carga exitosa/fallida
 - Limpiado código muerto
 
 ### v1.4.0
@@ -239,5 +321,5 @@ ISC
 
 ---
 
-**Repositorio:** https://github.com/cvalverdem/custom-data-table  
+**Repositorio:** https://github.com/cvalverdem/custom-data-table
 **Reportar Issues:** https://github.com/cvalverdem/custom-data-table/issues
