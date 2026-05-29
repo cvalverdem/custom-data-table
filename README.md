@@ -46,15 +46,14 @@ https://github.com/cvalverdem/custom-data-table/releases
 2. Busca "Custom Data Table" o sube el archivo `.vsix`
 3. Instala la extensión en tu organización
 
-### 3. Configurar un proceso heredado (Inherited Process)
+### 3. Agregar un campo al Work Item Type (en tu Inherited Process existente)
 
 1. Ve a **Organization Settings** → **Process**
-2. Sobre el proceso base (Agile, Scrum, CMMI o Basic), haz clic en **"... "** → **Create inherited process**
-3. Asigna un nombre al proceso heredado (ej: "Mi Proceso Personalizado")
-4. Selecciona el proceso heredado y haz clic en un **Work item type** (User Story, Task, Bug, etc.)
-5. En la pestaña **Fields**, crea un nuevo campo:
-   - Haz clic en **New field**
-   - Nombre: "Tabla Dinámica" (o el nombre que prefieras)
+2. Selecciona tu **Inherited Process** existente
+3. Haz clic en el **Work item type** que quieras modificar (User Story, Task, Bug, etc.)
+4. Ve a la pestaña **Fields**
+5. Haz clic en **New field**:
+   - Nombre: "Tabla Dinámica" (o el que prefieras)
    - Tipo: **Text (multiple lines)** ← importante para almacenar JSON
 
 ### 4. Agregar el control personalizado (Custom control) al Work Item Type
