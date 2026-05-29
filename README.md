@@ -58,17 +58,14 @@ https://github.com/cvalverdem/custom-data-table/releases
 
 ### 4. Agregar el control personalizado (Custom control) al Work Item Type
 
-1. En la pestaña **Layout** del Work item type, veras un toolbar con opciones:
-   - **New field**
-   - **New group**
-   - **New page**
-   - **Add custom control** ← usa esta opción
-   - **Get extensions**
-2. Haz clic en **Add custom control**
-3. En el desplegable, busca y selecciona **Custom Data Table (DataTables) v3**
-4. En el campo **Data field**, selecciona el campo "Text (multiple lines)" que creaste
-5. En el campo **Column Configuration (JSON)**, pega tu configuración de columnas
-6. Haz clic en **Save work item type**
+1. En el toolbar superior de la pestaña **Layout**, haz clic en **Add custom control**
+2. Aparecerá un modal titulado "Add a custom control to [Work Item Type]"
+3. En el tab **Definition** (izquierda), en el campo **Control**, selecciona **Custom Data Table (DataTables) v3**
+4. Ve al tab **Options** (izquierda) para configurar:
+   - **Data field**: selecciona el campo "Text (multiple lines)" que creaste
+   - **Column Configuration (JSON)**: pega tu configuración de columnas
+5. Ve al tab **Layout** (izquierda) para posicionar el control en el formulario
+6. Haz clic en **OK** para guardar el control
 
 ---
 
