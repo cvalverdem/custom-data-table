@@ -52,19 +52,23 @@ https://github.com/cvalverdem/custom-data-table/releases
 2. Selecciona tu **Inherited Process** existente
 3. Haz clic en el **Work item type** que quieras modificar (User Story, Task, Bug, etc.)
 4. Ve a la pestaña **Layout**
-5. En la sección **Fields**, haz clic en **New field**:
+5. En el toolbar superior, haz clic en **New field**:
    - Nombre: "Tabla Dinámica" (o el que prefieras)
    - Tipo: **Text (multiple lines)** ← importante para almacenar JSON
 
 ### 4. Agregar el control personalizado (Custom control) al Work Item Type
 
-1. En el mismo **Work item type** (ej: User Story), ve a la pestaña **Layout**
-2. Haz clic en **New group** o selecciona un grupo existente
-3. Dentro del grupo, haz clic en **Add custom control**
-4. En el desplegable, busca y selecciona **Custom Data Table (DataTables) v3**
-5. En el campo **Data field**, selecciona el campo "Text (multiple lines)" que creaste en el paso anterior
-6. En el campo **Column Configuration (JSON)**, pega tu configuración de columnas
-7. Haz clic en **Save work item type**
+1. En la pestaña **Layout** del Work item type, veras un toolbar con opciones:
+   - **New field**
+   - **New group**
+   - **New page**
+   - **Add custom control** ← usa esta opción
+   - **Get extensions**
+2. Haz clic en **Add custom control**
+3. En el desplegable, busca y selecciona **Custom Data Table (DataTables) v3**
+4. En el campo **Data field**, selecciona el campo "Text (multiple lines)" que creaste
+5. En el campo **Column Configuration (JSON)**, pega tu configuración de columnas
+6. Haz clic en **Save work item type**
 
 ---
 
