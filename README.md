@@ -63,8 +63,8 @@ https://github.com/cvalverdem/custom-data-table/releases
 2. Aparecerá un modal titulado "Add a custom control to [Work Item Type]"
 3. En el tab **Definition** (izquierda), en el campo **Control**, selecciona **Custom Data Table (DataTables) v3**
 4. Ve al tab **Options** (izquierda) para configurar:
-   - **Data field**: selecciona el campo "Text (multiple lines)" que creaste
-   - **Column Configuration (JSON)**: pega tu configuración de columnas
+   - **Campo de datos (nombre de referencia)**: selecciona el campo "Text (multiple lines)" que creaste
+   - **Configuración de columnas (JSON)**: pega tu configuración de columnas
 5. Ve al tab **Layout** (izquierda) para posicionar el control en el formulario
 6. Haz clic en **OK** para guardar el control
 
@@ -76,11 +76,11 @@ https://github.com/cvalverdem/custom-data-table/releases
 
 | Campo | Descripción |
 |-------|-------------|
-| **Data field (reference name)** | Campo de Azure DevOps que almacena el JSON de la tabla |
-| **Data field (manual entry)** | Respaldo si el selector no funciona |
-| **Column Configuration (JSON)** | Definición de las columnas y reglas en formato JSON |
-| **Font Family** | Familia de fuente para la tabla |
-| **Font Size** | Tamaño de fuente para la tabla |
+| **Campo de datos (nombre de referencia)** | Campo de Azure DevOps que almacena el JSON de la tabla |
+| **Campo de datos (ingreso manual)** | Respaldo si el selector no funciona |
+| **Configuración de columnas (JSON)** | Definición de las columnas, reglas y estados de solo lectura en formato JSON |
+| **Fuente** | Familia de fuente para la tabla |
+| **Tamaño de fuente** | Tamaño de fuente para la tabla |
 
 ### Ejemplo de Configuración JSON con Reglas de Fechas
 
@@ -278,7 +278,7 @@ En uso normal la tabla no muestra ningún mensaje de estado. Solo aparece un avi
 | Mensaje | Significado |
 |---------|-------------|
 | `⚠️ Campo no encontrado o no editable: …` | El campo configurado no existe en el tipo de elemento de trabajo |
-| `⚠️ Configuración de columnas inválida: …` | El JSON de *Column Configuration* tiene un error (sintaxis, falta `columns`, columna sin `id` o `id` repetido). La tabla no se muestra y no se lee ni se escribe el campo hasta corregirlo; el detalle indica qué falla |
+| `⚠️ Configuración de columnas inválida: …` | El JSON de *Configuración de columnas* tiene un error (sintaxis, falta `columns`, columna sin `id` o `id` repetido). La tabla no se muestra y no se lee ni se escribe el campo hasta corregirlo; el detalle indica qué falla |
 | `Error al inicializar` | Falló la inicialización |
 | `Error al cargar` | Error al cargar datos |
 | `No se pudo actualizar el campo` | Azure DevOps rechazó el valor |

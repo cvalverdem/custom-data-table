@@ -69,11 +69,11 @@ https://github.com/cvalverdem/custom-data-table/releases
 
 | Campo | Descripción |
 |-------|-------------|
-| **Data field (reference name)** | Campo de Azure DevOps que almacena el JSON de la tabla |
-| **Data field (manual entry)** | Respaldo si el selector no funciona |
-| **Column Configuration (JSON)** | Definición de las columnas y reglas en formato JSON |
-| **Font Family** | Familia de fuente para la tabla |
-| **Font Size** | Tamaño de fuente para la tabla |
+| **Campo de datos (nombre de referencia)** | Campo de Azure DevOps que almacena el JSON de la tabla |
+| **Campo de datos (ingreso manual)** | Respaldo si el selector no funciona |
+| **Configuración de columnas (JSON)** | Definición de las columnas, reglas y estados de solo lectura en formato JSON |
+| **Fuente** | Familia de fuente para la tabla |
+| **Tamaño de fuente** | Tamaño de fuente para la tabla |
 
 ### Ejemplo de Configuración JSON con Reglas de Fechas
 
@@ -199,7 +199,7 @@ En uso normal la tabla no muestra ningún mensaje de estado. Solo aparece un avi
 | Mensaje | Significado |
 |---------|-------------|
 | `⚠️ Campo no encontrado o no editable: …` | El campo configurado no existe en el tipo de elemento de trabajo |
-| `⚠️ Configuración de columnas inválida: …` | El JSON de *Column Configuration* tiene un error (sintaxis, falta `columns`, columna sin `id` o `id` repetido). La tabla no se muestra y no se lee ni se escribe el campo hasta corregirlo; el detalle indica qué falla |
+| `⚠️ Configuración de columnas inválida: …` | El JSON de *Configuración de columnas* tiene un error (sintaxis, falta `columns`, columna sin `id` o `id` repetido). La tabla no se muestra y no se lee ni se escribe el campo hasta corregirlo; el detalle indica qué falla |
 | `Error al inicializar` | Falló la inicialización |
 | `Error al cargar` | Error al cargar datos |
 | `No se pudo actualizar el campo` | Azure DevOps rechazó el valor |
