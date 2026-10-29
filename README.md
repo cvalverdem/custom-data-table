@@ -23,6 +23,7 @@
 
 - **Reordenar filas**: Arrastra una fila desde el asa ⠿ junto a su número para cambiar su posición (o enfoca el asa y usa las flechas ↑ ↓). El nuevo orden se guarda automáticamente
 - **Bloqueo por estado**: Con `readOnlyStates` la tabla queda en solo lectura en los estados que indiques (por ejemplo, Finalizado)
+- **Valores desde la fila anterior**: Con `defaultFromPrevious` una fila nueva puede arrancar, por ejemplo, con la fecha de fin de la fila anterior como fecha de inicio
 - **Validación de campos requeridos**: Los campos marcados como `required: true` muestran error visual y mensaje si están vacíos
 - **Reglas de validación de fechas**: Compara dos campos de fecha y valida que uno sea menor que el otro
 - **Guardado automático**: Los cambios se guardan automáticamente al escribir (debounce de 250ms)
@@ -142,6 +143,15 @@ https://github.com/cvalverdem/custom-data-table/releases
 | `width` | string | No | Ancho de la columna (ej: `"200px"`, `"25%"`) |
 | `defaultValue` | any | No | Valor por defecto para filas nuevas |
 | `options` | string[] | Solo para dropdown | Lista de opciones disponibles |
+| `defaultFromPrevious` | string o `true` | No | Al agregar una fila, toma el valor de esta columna de la **fila anterior**: el `id` de la columna a copiar (por ejemplo `"fechaFin"`) o `true` para copiar la misma columna. Si la fila anterior está vacía en esa columna, se usa `defaultValue` |
+
+**Ejemplo — cada tarea empieza cuando termina la anterior:**
+
+```json
+{ "id": "fechaInicio", "name": "Fecha y hora inicio", "dataType": "date", "required": true, "defaultFromPrevious": "fechaFin" }
+```
+
+Al presionar **Agregar fila**, la nueva fila trae como *Fecha y hora inicio* la *Fecha y hora fin* de la última fila (aunque todavía no se haya guardado). Solo aplica a filas nuevas; no modifica filas existentes ni se recalcula si luego cambias la fila anterior. Si el `id` no existe, la configuración se marca como inválida.
 
 > **Si el JSON tiene un error**, la tabla no usa columnas por defecto: muestra `⚠️ Configuración de columnas inválida: …` con el detalle y no toca el campo, para que un error de configuración no borre datos. Después de cambiar la configuración, abre un elemento de trabajo para comprobar que la tabla se ve bien. Si el campo se deja vacío, se usa la tabla por defecto (Descripción, Responsable, Fecha y hora inicio, Fecha y hora fin).
 

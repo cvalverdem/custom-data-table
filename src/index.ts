@@ -15,6 +15,7 @@ interface ColumnDefinition {
   width: string;
   defaultValue?: unknown;
   options: string[]; // For dropdown type
+  defaultFromPrevious?: string; // new rows take this column's value from the previous row
 }
 
 interface ValidationRule {
@@ -152,6 +153,8 @@ function getConfiguredTable(): TableConfiguration {
   const columns: ColumnDefinition[] = candidate.columns.map((col: any, i: number): ColumnDefinition => {
     const id = String(col?.id ?? "").trim();
     if (!id) throw new Error(`la columna ${i + 1} no tiene "id"`);
+    // true = same column; "otherId" = that column of the previous row
+    const fromPrevious = col?.defaultFromPrevious === true ? id : String(col?.defaultFromPrevious ?? "").trim();
     return {
       id,
       name: String(col?.name || id).trim(),
@@ -159,7 +162,8 @@ function getConfiguredTable(): TableConfiguration {
       required: !!col?.required,
       width: col?.width || "",
       defaultValue: col?.defaultValue,
-      options: Array.isArray(col?.options) ? col.options.map(String) : []
+      options: Array.isArray(col?.options) ? col.options.map(String) : [],
+      defaultFromPrevious: fromPrevious && col?.defaultFromPrevious !== false ? fromPrevious : undefined
     };
   });
 
@@ -167,6 +171,11 @@ function getConfiguredTable(): TableConfiguration {
   for (const col of columns) {
     if (seen.has(col.id)) throw new Error(`el id "${col.id}" está repetido`);
     seen.add(col.id);
+  }
+  for (const col of columns) {
+    if (col.defaultFromPrevious && !seen.has(col.defaultFromPrevious)) {
+      throw new Error(`"defaultFromPrevious" de la columna "${col.id}" apunta a "${col.defaultFromPrevious}", que no existe`);
+    }
   }
 
   // ["Finalizado", "Cerrado"] or "Finalizado, Cerrado"
@@ -439,6 +448,21 @@ function getControlValue(column: ColumnDefinition, control: HTMLInputElement | n
   }
 }
 
+/* Values for a row added at the end: columns with defaultFromPrevious copy from the last row (as shown, unsaved edits included) */
+function newRowValues(): Partial<Row> {
+  const values: Partial<Row> = {};
+  const last = tbody().lastElementChild;
+  if (!last) return values;
+
+  for (const col of tableConfig.columns) {
+    if (!col.defaultFromPrevious) continue;
+    const source = tableConfig.columns.find(c => c.id === col.defaultFromPrevious)!;
+    const value = getControlValue(source, getControl(last, source.id));
+    if (value !== "" && value != null) values[col.id] = value; // empty: fall back to defaultValue
+  }
+  return values;
+}
+
 function getRows(): Row[] {
   const rows: Row[] = [];
   tbody().querySelectorAll("tr").forEach((tr, idx) => {
@@ -683,7 +707,7 @@ function wireEvents() {
   document.getElementById("addRowBtn")!.addEventListener("click", () => {
     if (lockReason) return;
     tableTouched = true;
-    createRow();
+    createRow(newRowValues());
     validateTable();
     scheduleAutoSync();
     SDK.resize();
