@@ -44,7 +44,7 @@ https://github.com/cvalverdem/custom-data-table/releases
 ### 2. Instalar en Azure DevOps
 
 1. Ve a [Azure DevOps Marketplace](https://marketplace.visualstudio.com/azuredevops)
-2. Busca "Custom Data Table" o sube el archivo `.vsix`
+2. Busca "Data Table Extension" o sube el archivo `.vsix`
 3. Instala la extensión en tu organización
 
 ### 3. Agregar un campo al Work Item Type (en tu Inherited Process existente)
@@ -61,7 +61,7 @@ https://github.com/cvalverdem/custom-data-table/releases
 
 1. En el toolbar superior de la pestaña **Layout**, haz clic en **Add custom control**
 2. Aparecerá un modal titulado "Add a custom control to [Work Item Type]"
-3. En el tab **Definition** (izquierda), en el campo **Control**, selecciona **Custom Data Table (DataTables) v3**
+3. En el tab **Definition** (izquierda), en el campo **Control**, selecciona **Tabla de datos** (en versiones anteriores se llamaba "Custom Data Table (DataTables) v3")
 4. Ve al tab **Options** (izquierda) para configurar:
    - **Campo de datos (nombre de referencia)**: selecciona el campo "Text (multiple lines)" que creaste
    - **Configuración de columnas (JSON)**: pega tu configuración de columnas

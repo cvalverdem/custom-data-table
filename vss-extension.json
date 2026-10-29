@@ -42,7 +42,7 @@
       ],
       "description": "Agrega al formulario del elemento de trabajo una tabla editable configurable.",
       "properties": {
-        "name": "Custom Data Table (DataTables) v3",
+        "name": "Tabla de datos",
         "uri": "dist/index.html",
         "height": 380,
         "inputs": [
