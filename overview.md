@@ -21,14 +21,14 @@
 
 ### Funcionalidades
 
+- **Reordenar filas**: Arrastra una fila desde el asa ⠿ junto a su número para cambiar su posición (o enfoca el asa y usa las flechas ↑ ↓). El nuevo orden se guarda automáticamente
 - **Validación de campos requeridos**: Los campos marcados como `required: true` muestran error visual y mensaje si están vacíos
 - **Reglas de validación de fechas**: Compara dos campos de fecha y valida que uno sea menor que el otro
 - **Guardado automático**: Los cambios se guardan automáticamente al escribir (debounce de 250ms)
 - **Guardado al abandonar la página**: Se guarda automáticamente cuando cambias de pestaña o cierras el navegador
 - **Compatibilidad con datos legacy**: Migra automáticamente datos de formatos anteriores
 - **Configuración de fuente**: Permite cambiar familia y tamaño de fuente
-- **Visibilidad del mensaje de ayuda**: Opción para mostrar/ocultar el tip
-- **Interfaz en español**: Todos los mensajes de estado están traducidos
+- **Interfaz en español**: Todos los textos y mensajes están en español
 - **Notificación de éxito/error**: Notifica a Azure DevOps cuando la carga termina correctamente o falla
 
 ---
@@ -73,7 +73,6 @@ https://github.com/cvalverdem/custom-data-table/releases
 | **Column Configuration (JSON)** | Definición de las columnas y reglas en formato JSON |
 | **Font Family** | Familia de fuente para la tabla |
 | **Font Size** | Tamaño de fuente para la tabla |
-| **Show Tip Message** | Mostrar/ocultar el mensaje de ayuda |
 
 ### Ejemplo de Configuración JSON con Reglas de Fechas
 
@@ -169,18 +168,17 @@ Valida que la fecha de una columna sea menor que la fecha de otra columna.
 
 ## Mensajes de Estado
 
-La extensión muestra mensajes de estado en español:
+En uso normal la tabla no muestra ningún mensaje de estado. Solo aparece un aviso cuando hay un problema:
 
 | Mensaje | Significado |
 |---------|-------------|
-| `Listo` | Tabla cargada correctamente |
-| `Cargando...` | Cargando datos |
-| `Cambios pendientes…` | Guardando automáticamente |
-| `Guardado` | Guardado manual completado |
-| `Cambios aplicados al formulario` | Cambios guardados exitosamente |
+| `⚠️ Campo no encontrado o no editable: …` | El campo configurado no existe en el tipo de elemento de trabajo |
 | `Error al inicializar` | Falló la inicialización |
 | `Error al cargar` | Error al cargar datos |
-| `Hay errores de validación` | Campos requeridos vacíos o fechas inválidas |
+| `No se pudo actualizar el campo` | Azure DevOps rechazó el valor |
+| `Error al actualizar el campo (ver consola).` | Error inesperado al guardar |
+
+Los errores de validación (`Debe completar todos los campos`, `La fecha inicial debe ser menor que la fecha final` o el mensaje personalizado de la regla) se muestran en rojo junto al botón **Agregar fila** y también arriba del formulario, lo que impide guardar el elemento de trabajo hasta corregirlos.
 
 ---
 

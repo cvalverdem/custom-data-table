@@ -40,7 +40,7 @@
       "targets": [
         "ms.vss-work-web.work-item-form"
       ],
-      "description": "Adds a custom work item form control that shows an editable DataTables grid.",
+      "description": "Adds a custom work item form control that shows an editable grid.",
       "properties": {
         "name": "Custom Data Table (DataTables) v3",
         "uri": "dist/index.html",
@@ -136,17 +136,6 @@
               "Large (18px)": "18",
               "Extra Large (20px)": "20",
               "Extra Large (22px)": "22"
-            }
-          },
-          {
-            "id": "ShowTip",
-            "name": "Show Tip Message",
-            "description": "Show or hide the tip message at the bottom of the table.",
-            "type": "boolean",
-            "defaultValue": "true",
-            "validation": {
-              "dataType": "Boolean",
-              "isRequired": false
             }
           }
         ]

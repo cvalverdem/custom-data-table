@@ -1,7 +1,6 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
-const webpack = require("webpack");
 
 module.exports = {
   entry: { index: "./src/index.ts" },
@@ -17,7 +16,6 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({ template: "src/index.html", chunks: ["index"] }),
-    new CopyWebpackPlugin({ patterns: [{ from: "images", to: "images" }] }),
-    new webpack.ProvidePlugin({ $: "jquery", jQuery: "jquery", "window.jQuery": "jquery" })
+    new CopyWebpackPlugin({ patterns: [{ from: "images", to: "images" }] })
   ]
 };
