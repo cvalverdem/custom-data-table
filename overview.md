@@ -22,6 +22,7 @@
 ### Funcionalidades
 
 - **Reordenar filas**: Arrastra una fila desde el asa ⠿ junto a su número para cambiar su posición (o enfoca el asa y usa las flechas ↑ ↓). El nuevo orden se guarda automáticamente
+- **Bloqueo por estado**: Con `readOnlyStates` la tabla queda en solo lectura en los estados que indiques (por ejemplo, Finalizado)
 - **Validación de campos requeridos**: Los campos marcados como `required: true` muestran error visual y mensaje si están vacíos
 - **Reglas de validación de fechas**: Compara dos campos de fecha y valida que uno sea menor que el otro
 - **Guardado automático**: Los cambios se guardan automáticamente al escribir (debounce de 250ms)
@@ -163,6 +164,29 @@ Valida que la fecha de una columna sea menor que la fecha de otra columna.
 | `startColumnId` | ID de la columna que debe tener la fecha menor (también acepta `start`) |
 | `endColumnId` | ID de la columna que debe tener la fecha mayor (también acepta `end`) |
 | `message` | Mensaje de error personalizado |
+
+---
+
+## Bloqueo por Estado (solo lectura)
+
+Agrega `readOnlyStates` al JSON de configuración con los estados del elemento de trabajo en los que la tabla no se puede editar:
+
+```json
+{
+  "columns": [ ... ],
+  "rules": [ ... ],
+  "readOnlyStates": ["Finalizado", "Cerrado"]
+}
+```
+
+- En esos estados la tabla queda bloqueada: los campos se muestran en gris y no se puede escribir, agregar, eliminar ni reordenar filas. Los campos `textArea` se pueden seguir agrandando para leer el texto completo.
+- El bloqueo se aplica en cuanto cambias el estado en el formulario (incluso antes de guardar) y se quita si vuelves a otro estado. Los cambios hechos antes de cambiar el estado se conservan.
+- La comparación no distingue mayúsculas/minúsculas, pero sí acentos: el nombre debe coincidir con el estado del proceso.
+- También acepta un texto separado por comas: `"readOnlyStates": "Finalizado, Cerrado"`.
+- Sin `readOnlyStates`, la tabla funciona como siempre.
+- Además, la tabla se bloquea sola cuando Azure DevOps abre el elemento de trabajo en modo solo lectura (por ejemplo, sin permisos de edición).
+
+> **Importante:** este bloqueo es de la interfaz. Para que el campo no se pueda modificar por ninguna vía (edición masiva, Excel, API), crea también una regla en el proceso: **Organization Settings → Process → (proceso) → (tipo de elemento) → Rules → New rule**, condición *When the work item state is* `Finalizado` y acción *Make read-only* sobre el campo de la tabla (por ejemplo `Custom.DataTableJSON`).
 
 ---
 

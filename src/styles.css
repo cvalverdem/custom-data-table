@@ -212,6 +212,15 @@ body.is-dragging * {
   user-select: none;
 }
 
+/* ---------- Locked (read-only) table ---------- */
+.azdo-card.is-locked .drag-handle { visibility: hidden; }
+.azdo-card.is-locked #gridTable input:read-only,
+.azdo-card.is-locked #gridTable textarea:read-only,
+.azdo-card.is-locked #gridTable select:disabled {
+  background: var(--az-hover);
+  cursor: default;
+}
+
 /* ---------- Validation state ---------- */
 #gridTable .field-error {
   border-color: var(--az-error) !important;

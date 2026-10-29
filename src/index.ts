@@ -29,6 +29,7 @@ interface ValidationRule {
 interface TableConfiguration {
   columns: ColumnDefinition[];
   rules: ValidationRule[];
+  readOnlyStates: string[];  // work item states (System.State) in which the table is locked
 }
 
 type Row = { _id: number; [columnId: string]: unknown };
@@ -51,6 +52,10 @@ let lastSyncedPayload = "";      // what the field holds (or is being written) f
 /** Form-level error that blocks saving the work item while the table is invalid */
 let tableTouched = false;        // only block saving once the user edited this work item's table
 let formError = "";
+
+/** Locking: the form is read-only, or the work item is in one of the configured readOnlyStates */
+let formReadOnly = false;
+let lockReason = "";             // non-empty while the table is locked
 
 let syncTimeout: number | undefined;
 
@@ -121,7 +126,8 @@ function defaultConfig(): TableConfiguration {
       { id: "fechaInicio", name: "Fecha y hora inicio", dataType: "date", required: true, width: "10%", options: [] },
       { id: "fechaFin", name: "Fecha y hora fin", dataType: "date", required: true, width: "10%", options: [] }
     ],
-    rules: []
+    rules: [],
+    readOnlyStates: []
   };
 }
 
@@ -152,7 +158,13 @@ function getConfiguredTable(): TableConfiguration {
 
   if (!columns.length) return defaultConfig();
 
-  return { columns, rules: Array.isArray(candidate.rules) ? candidate.rules : [] };
+  // ["Finalizado", "Cerrado"] or "Finalizado, Cerrado"
+  const states = candidate.readOnlyStates;
+  const readOnlyStates = (Array.isArray(states) ? states : typeof states === "string" ? states.split(",") : [])
+    .map((s: unknown) => String(s).trim())
+    .filter(Boolean);
+
+  return { columns, rules: Array.isArray(candidate.rules) ? candidate.rules : [], readOnlyStates };
 }
 
 /* Apply font configuration (combo inputs) to the page */
@@ -294,7 +306,7 @@ function rowsReordered() {
 /* Drag with mouse, pen or touch: the row follows the pointer and the others make room */
 function wireRowDrag(row: HTMLTableRowElement, handle: HTMLButtonElement) {
   handle.addEventListener("pointerdown", event => {
-    if (event.button !== 0) return;
+    if (event.button !== 0 || lockReason) return;
     event.preventDefault();
 
     // Capture on the tbody: the row (and its handle) is re-inserted while dragging, which would drop a capture held by the handle
@@ -342,7 +354,7 @@ function wireRowDrag(row: HTMLTableRowElement, handle: HTMLButtonElement) {
 
   // Keyboard: focus the handle and use the arrow keys
   handle.addEventListener("keydown", event => {
-    if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+    if ((event.key !== "ArrowUp" && event.key !== "ArrowDown") || lockReason) return;
     event.preventDefault();
     const up = event.key === "ArrowUp";
     const sibling = up ? row.previousElementSibling : row.nextElementSibling;
@@ -484,6 +496,11 @@ function updateFormError(message: string) {
 
 function validateTable(): boolean {
   clearValidationState();
+  // A locked table can't be fixed, so it must never block saving the work item (e.g. while closing it)
+  if (lockReason) {
+    updateFormError("");
+    return true;
+  }
 
   const messages: string[] = [];
   let hasRequiredError = false;
@@ -512,7 +529,7 @@ function validateTable(): boolean {
 
 // The status line stays empty in normal use (as in 1.4.0) and only reports problems
 async function syncToField(): Promise<boolean> {
-  if (!workItemService) return false;
+  if (!workItemService || lockReason) return false;
   if (!validateTable()) return false;
 
   const payload = JSON.stringify(getRows());
@@ -548,6 +565,42 @@ function scheduleAutoSync(delay = 350) {
 function syncNow() {
   window.clearTimeout(syncTimeout);
   syncToField();
+}
+
+/* ───────────────────────── Locking ───────────────────────── */
+
+async function computeLockReason(): Promise<string> {
+  if (formReadOnly) return "Solo lectura: este elemento de trabajo no se puede editar";
+  if (!workItemService || !tableConfig.readOnlyStates.length) return "";
+
+  let state = "";
+  try {
+    // The form's current value, so the lock follows a state change before the work item is saved
+    state = String((await workItemService.getFieldValue("System.State")) ?? "").trim();
+  } catch (e) {
+    console.error("No se pudo leer el estado del work item:", e);
+    return "";
+  }
+  const locked = tableConfig.readOnlyStates.some(s => s.toLowerCase() === state.toLowerCase());
+  return locked ? `Tabla bloqueada: el elemento está en estado «${state}»` : "";
+}
+
+/* Makes every control in the table read-only (or editable again) according to lockReason */
+function applyLock() {
+  const locked = !!lockReason;
+  document.getElementById("app")!.classList.toggle("is-locked", locked);
+  (document.getElementById("addRowBtn") as HTMLButtonElement).disabled = locked;
+
+  tbody().querySelectorAll<HTMLElement>("input, textarea, select, button").forEach(el => {
+    // Text-like fields stay readable and selectable as read-only; the rest can only be disabled
+    if (el instanceof HTMLTextAreaElement || (el instanceof HTMLInputElement && el.type !== "checkbox")) {
+      el.readOnly = locked;
+    } else {
+      (el as HTMLButtonElement | HTMLSelectElement | HTMLInputElement).disabled = locked;
+    }
+  });
+
+  setStatus(""); // no notice: the read-only look speaks for itself
 }
 
 /* ───────────────────────── Loading ───────────────────────── */
@@ -593,6 +646,7 @@ async function load() {
   window.clearTimeout(syncTimeout);
   try {
     const value = await workItemService.getFieldValue(dataFieldRefName);
+    lockReason = await computeLockReason();
 
     isLoadingData = true;
     tableTouched = false;
@@ -603,7 +657,7 @@ async function load() {
     isLoadingData = false;
 
     validateTable();
-    setStatus(""); // nothing to report at rest
+    applyLock();
     SDK.resize();
   } catch (e) {
     isLoadingData = false;
@@ -616,6 +670,7 @@ async function load() {
 
 function wireEvents() {
   document.getElementById("addRowBtn")!.addEventListener("click", () => {
+    if (lockReason) return;
     tableTouched = true;
     createRow();
     validateTable();
@@ -694,6 +749,13 @@ async function initialize(): Promise<boolean> {
     createHeader();
     wireEvents();
 
+    // Keep the form's iframe as tall as the table, e.g. when a textarea is dragged bigger
+    let resizeFrame = 0;
+    new ResizeObserver(() => {
+      cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(() => SDK.resize());
+    }).observe(document.getElementById("app")!);
+
     const svc = await SDK.getService<IWorkItemFormService>(WORK_ITEM_FORM_SERVICE);
 
     let resolved: string | null;
@@ -727,13 +789,24 @@ async function initialize(): Promise<boolean> {
 
 const provider = {
   // Called each time a work item is loaded into the form (the control is reused when navigating)
-  onLoaded: async () => {
+  onLoaded: async (args: any) => {
+    // "true: write REST APIs are disabled. All controls should be rendered as readonly"
+    formReadOnly = !!args?.isReadOnly;
     if (await initialization) await load();
   },
 
   onFieldChanged: async (args: any) => {
     const changed = args?.changedFields;
-    if (!changed || !(dataFieldRefName in changed)) return;
+    if (!changed) return;
+
+    // State change: keep edits made before it, then re-render locked/unlocked
+    if ("System.State" in changed && tableConfig.readOnlyStates.length) {
+      await syncToField();
+      await load();
+      return;
+    }
+
+    if (!(dataFieldRefName in changed)) return;
 
     // Ignore the echo from our own write (compared as parsed rows, in case an HTML field wraps it)
     if (JSON.stringify(parseStoredRows(changed[dataFieldRefName])) === lastSyncedPayload) return;
