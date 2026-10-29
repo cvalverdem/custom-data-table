@@ -143,6 +143,8 @@ https://github.com/cvalverdem/custom-data-table/releases
 | `defaultValue` | any | No | Valor por defecto para filas nuevas |
 | `options` | string[] | Solo para dropdown | Lista de opciones disponibles |
 
+> **Si el JSON tiene un error**, la tabla no usa columnas por defecto: muestra `⚠️ Configuración de columnas inválida: …` con el detalle y no toca el campo, para que un error de configuración no borre datos. Después de cambiar la configuración, abre un elemento de trabajo para comprobar que la tabla se ve bien. Si el campo se deja vacío, se usa la tabla por defecto (Descripción, Responsable, Fecha y hora inicio, Fecha y hora fin).
+
 ---
 
 ## Reglas de Validación
@@ -276,6 +278,7 @@ En uso normal la tabla no muestra ningún mensaje de estado. Solo aparece un avi
 | Mensaje | Significado |
 |---------|-------------|
 | `⚠️ Campo no encontrado o no editable: …` | El campo configurado no existe en el tipo de elemento de trabajo |
+| `⚠️ Configuración de columnas inválida: …` | El JSON de *Column Configuration* tiene un error (sintaxis, falta `columns`, columna sin `id` o `id` repetido). La tabla no se muestra y no se lee ni se escribe el campo hasta corregirlo; el detalle indica qué falla |
 | `Error al inicializar` | Falló la inicialización |
 | `Error al cargar` | Error al cargar datos |
 | `No se pudo actualizar el campo` | Azure DevOps rechazó el valor |

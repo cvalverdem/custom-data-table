@@ -131,7 +131,9 @@ function defaultConfig(): TableConfiguration {
   };
 }
 
-/* Get column configuration from extension inputs, falling back to the default table */
+/* Get column configuration from extension inputs; empty means the default table.
+   A broken configuration throws instead of falling back: rendering other columns and saving
+   would silently drop the data of the real ones in every work item someone edits. */
 function getConfiguredTable(): TableConfiguration {
   const raw = String(witInputs().ColumnConfiguration || "").trim();
   if (!raw) return defaultConfig();
@@ -139,24 +141,33 @@ function getConfiguredTable(): TableConfiguration {
   let candidate: any;
   try {
     candidate = JSON.parse(raw);
-  } catch (e) {
-    console.error("ColumnConfiguration inválido, usando configuración por defecto:", e);
-    return defaultConfig();
+  } catch (e: any) {
+    throw new Error(`el JSON no es válido (${e?.message || e})`);
   }
 
-  const columns: ColumnDefinition[] = (Array.isArray(candidate?.columns) ? candidate.columns : [])
-    .map((col: any): ColumnDefinition => ({
-      id: String(col?.id || "").trim(),
-      name: String(col?.name || col?.id || "").trim(),
+  if (!Array.isArray(candidate?.columns) || !candidate.columns.length) {
+    throw new Error('falta la lista "columns" o está vacía');
+  }
+
+  const columns: ColumnDefinition[] = candidate.columns.map((col: any, i: number): ColumnDefinition => {
+    const id = String(col?.id ?? "").trim();
+    if (!id) throw new Error(`la columna ${i + 1} no tiene "id"`);
+    return {
+      id,
+      name: String(col?.name || id).trim(),
       dataType: normalizeDataType(col?.dataType),
       required: !!col?.required,
       width: col?.width || "",
       defaultValue: col?.defaultValue,
       options: Array.isArray(col?.options) ? col.options.map(String) : []
-    }))
-    .filter((col: ColumnDefinition) => col.id && col.name);
+    };
+  });
 
-  if (!columns.length) return defaultConfig();
+  const seen = new Set<string>();
+  for (const col of columns) {
+    if (seen.has(col.id)) throw new Error(`el id "${col.id}" está repetido`);
+    seen.add(col.id);
+  }
 
   // ["Finalizado", "Cerrado"] or "Finalizado, Cerrado"
   const states = candidate.readOnlyStates;
@@ -740,10 +751,26 @@ function wireEvents() {
 
 let initialization: Promise<boolean> = Promise.resolve(false);
 
+/* A setup problem (bad configuration, missing field): show it and never read or write the field,
+   so nothing stored can be lost until the control is configured correctly */
+async function showSetupError(message: string) {
+  setStatus(message);
+  (document.getElementById("addRowBtn") as HTMLButtonElement).disabled = true;
+  document.querySelector<HTMLElement>(".azdo-table-wrap")!.style.display = "none";
+  SDK.resize();
+  await SDK.notifyLoadSucceeded();
+}
+
 async function initialize(): Promise<boolean> {
   try {
     dataFieldRefName = getConfiguredField();
-    tableConfig = getConfiguredTable();
+    try {
+      tableConfig = getConfiguredTable();
+    } catch (e: any) {
+      console.error("ColumnConfiguration inválido:", e);
+      await showSetupError("⚠️ Configuración de columnas inválida: " + (e?.message || e));
+      return false;
+    }
 
     applyFontConfiguration();
     createHeader();
@@ -766,10 +793,7 @@ async function initialize(): Promise<boolean> {
       resolved = dataFieldRefName;
     }
     if (!resolved) {
-      // Without a field there is nowhere to save: keep the table read-only instead of losing edits
-      setStatus("⚠️ Campo no encontrado o no editable: " + dataFieldRefName);
-      (document.getElementById("addRowBtn") as HTMLButtonElement).disabled = true;
-      await SDK.notifyLoadSucceeded();
+      await showSetupError("⚠️ Campo no encontrado o no editable: " + dataFieldRefName);
       return false;
     }
     dataFieldRefName = resolved;

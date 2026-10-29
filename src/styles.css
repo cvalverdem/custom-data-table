@@ -96,10 +96,11 @@ html, body { background: transparent; }
 .bowtie-icon { font-size: 14px; }
 
 /* ---------- Status & validation text ---------- */
+/* Only used for problems (bad configuration, missing field, save errors) */
 .azdo-status {
-  color: var(--az-muted);
+  color: var(--az-error);
   font-size: 12px;
-  user-select: none;
+  font-weight: 600;
 }
 
 .azdo-validation-message {
