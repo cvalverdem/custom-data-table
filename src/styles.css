@@ -13,7 +13,7 @@
   --az-primary: #0078d4;
   --az-primary-hover: #106ebe;
   --az-danger: #c50f1f;
-  --az-danger-hover: #a80e1f;
+  --az-success: #107c10;
   --az-error: #d13438;
 }
 
@@ -27,6 +27,8 @@
     --az-hover: #313131;
     --az-primary: #3aa0ff;
     --az-primary-hover: #2895ff;
+    --az-danger: #e5484d;
+    --az-success: #54b054;
   }
 }
 
@@ -79,18 +81,32 @@ html, body { background: transparent; }
   cursor: not-allowed;
 }
 
-.azdo-btn.btn-remove {
-  background: var(--az-danger);
-  border-color: var(--az-danger);
-  color: #fff;
-  font-size: 11px;
-  padding: 2px 8px;
-  height: 24px;
+/* Row actions: colored icon buttons (duplicate / insert below / delete) */
+#gridTable td.row-actions { white-space: nowrap; }
+.row-action {
+  --act-color: var(--az-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-right: 4px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--az-radius);
+  color: var(--act-color);
+  background: color-mix(in srgb, var(--act-color) 12%, transparent);
+  fill: currentColor;
+  cursor: pointer;
+  vertical-align: middle;
 }
-.azdo-btn.btn-remove:hover {
-  background: var(--az-danger-hover);
-  border-color: var(--az-danger-hover);
-}
+.row-action:last-child { margin-right: 0; }
+.row-action.act-duplicate { --act-color: var(--az-primary); }
+.row-action.act-insert { --act-color: var(--az-success); }
+.row-action.act-delete { --act-color: var(--az-danger); }
+.row-action:hover:not(:disabled) { color: #fff; background: var(--act-color); }
+.row-action:focus-visible { outline: 2px solid var(--act-color); outline-offset: 1px; }
+.row-action:disabled { opacity: 0.45; cursor: not-allowed; }
 
 /* Bowtie icons align nicely inside our buttons */
 .bowtie-icon { font-size: 14px; }

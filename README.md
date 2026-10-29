@@ -22,6 +22,7 @@
 ### Funcionalidades
 
 - **Reordenar filas**: Arrastra una fila desde el asa ⠿ junto a su número para cambiar su posición (o enfoca el asa y usa las flechas ↑ ↓). El nuevo orden se guarda automáticamente
+- **Duplicar e insertar filas**: Íconos por fila para duplicar una fila o insertar una nueva justo debajo, además de eliminarla. Las acciones visibles se eligen con `rowActions`
 - **Bloqueo por estado**: Con `readOnlyStates` la tabla queda en solo lectura en los estados que indiques (por ejemplo, Finalizado)
 - **Valores desde la fila anterior**: Con `defaultFromPrevious` una fila nueva puede arrancar, por ejemplo, con la fecha de fin de la fila anterior como fecha de inicio
 - **Validación de campos requeridos**: Los campos marcados como `required: true` muestran error visual y mensaje si están vacíos
@@ -255,6 +256,34 @@ Valida que la fecha de una columna sea menor que la fecha de otra columna.
   ]
 }
 ```
+
+---
+
+## Acciones por Fila
+
+Cada fila tiene estas acciones:
+
+| Acción | Valor en `rowActions` | Qué hace |
+|---|---|---|
+| Asa ⠿ junto al número | `"move"` | Arrastrar la fila para cambiar su posición (o flechas ↑ ↓ con el asa enfocada) |
+| Ícono azul ⧉ | `"duplicate"` | Crea una copia exacta de la fila justo debajo |
+| Ícono verde ＋ | `"insert"` | Inserta una fila nueva justo debajo; `defaultFromPrevious` toma los valores de esa fila |
+| Ícono rojo 🗑 | `"delete"` | Elimina la fila |
+
+Por defecto se muestran todas. Para elegir cuáles, agrega `rowActions` al JSON de configuración:
+
+```json
+{
+  "columns": [ ... ],
+  "rowActions": ["move", "duplicate", "delete"]
+}
+```
+
+- El orden en pantalla es siempre el mismo, sin importar el orden en la lista.
+- También acepta un texto separado por comas: `"rowActions": "duplicate, delete"`.
+- Con `"rowActions": []` no se muestra ninguna acción ni la columna *Acción*; se pueden seguir agregando filas con **Agregar fila**.
+- Un valor desconocido marca la configuración como inválida.
+- Con la tabla bloqueada (por `readOnlyStates` o solo lectura), las acciones quedan deshabilitadas.
 
 ---
 
