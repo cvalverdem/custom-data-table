@@ -5,8 +5,6 @@
 ### Cambiado
 
 - **Nombre en el Marketplace:** ahora es *Custom Data Table*. El `id` no cambia, así que la actualización es transparente.
-- **Publicación en inglés:** la descripción y la guía de la página de la extensión ahora están en inglés. La interfaz de la tabla sigue en español.
-- **Búsqueda:** se agregaron etiquetas para encontrar la extensión en el Marketplace.
 
 ## 1.5.5
 

@@ -4,16 +4,10 @@
   "publisher": "CentroDeCompetencias",
   "version": "1.5.6",
   "name": "Custom Data Table",
-  "description": "Configurable table control for Azure DevOps work items. Define columns, data types and validations with JSON. Ideal for change plans, task tracking and planning.",
+  "description": "Control de tabla configurable para elementos de trabajo de Azure DevOps. Define columnas, tipos de dato y validaciones con JSON. Ideal para planes de cambio, seguimiento de tareas y planificación.",
   "public": true,
   "categories": [
     "Azure Boards"
-  ],
-  "tags": [
-    "table",
-    "data table",
-    "work item",
-    "change plan"
   ],
   "targets": [
     {

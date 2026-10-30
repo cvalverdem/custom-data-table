@@ -1,6 +1,6 @@
 <img src="images/extension-icon.png" alt="" width="64" height="64">
 
-# Custom Data Table para Azure DevOps
+# Tabla de datos para Azure DevOps
 
 Extensión de Azure DevOps que agrega una tabla editable a los elementos de trabajo. Las columnas, los tipos de dato y las validaciones se definen con un JSON. Se usa para planes de cambio, seguimiento de tareas y planificación.
 
@@ -10,7 +10,7 @@ Extensión de Azure DevOps que agrega una tabla editable a los elementos de trab
 
 | Documento | Contenido |
 |---|---|
-| [Guía de usuario, instalación y configuración](overview.md) | Está en inglés, porque es la misma página que se publica como detalle de la extensión |
+| [Guía de usuario, instalación y configuración](overview.md) | Es la misma página que se publica como detalle de la extensión |
 | [Historial de cambios](CHANGELOG.md) | Cambios por versión y qué revisar al actualizar |
 
 ## Inicio rápido
