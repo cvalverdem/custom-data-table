@@ -1,5 +1,11 @@
 # Historial de cambios
 
+## 1.5.3
+
+### Cambiado
+
+- **`blockSaveOnError: false`:** al guardar con errores, se guarda la última versión válida de la tabla, nunca filas incompletas. Las filas con errores se conservan al cambiar de pestaña en el formulario.
+
 ## 1.5.2
 
 ### Agregado

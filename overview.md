@@ -220,8 +220,9 @@ Por defecto, si la tabla editada tiene errores, Azure DevOps no deja guardar el 
 "blockSaveOnError": false
 ```
 
-- Con `false`, los errores solo se marcan en la tabla y el elemento de trabajo se puede guardar.
-- **Riesgo con `false`:** las filas incompletas se guardan tal como están.
+- Con `false`, los errores solo se marcan en la tabla y el elemento de trabajo se puede guardar. Se guarda la última versión válida de la tabla, nunca filas incompletas.
+- Las filas con errores se conservan al cambiar de pestaña en el formulario. Quedan en esa pestaña del navegador hasta corregirlas, deshacer los cambios o guardar.
+- **Riesgo con `false`:** al guardar con errores, la tabla vuelve a la última versión válida y se descartan los cambios hechos desde entonces, incluidos los de filas correctas.
 - Solo se activa al editar la tabla: abrir un elemento con datos incompletos no impide guardar otros campos.
 - Debe ser `true` o `false`, sin comillas.
 

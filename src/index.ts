@@ -51,6 +51,7 @@ const DEFAULT_TABLE_NAME = "Tabla de datos";
 
 let workItemService: IWorkItemFormService | null = null;
 let dataFieldRefName = DEFAULT_FIELD;
+let workItemId = 0;
 let tableConfig: TableConfiguration = defaultConfig();
 
 /** Guards to stop bad writes */
@@ -665,14 +666,49 @@ function validateTable(): boolean {
 
 /* ───────────────────────── Persistence ───────────────────────── */
 
+/* Invalid rows kept in this browser tab while "blockSaveOnError" is false; storage may be blocked */
+const draftKey = () => `draft:${workItemId}:${dataFieldRefName}`;
+
+function writeDraft(rows: string) {
+  try {
+    sessionStorage.setItem(draftKey(), JSON.stringify({ base: lastSyncedPayload, rows }));
+  } catch (e) {
+    console.error("No se pudo conservar el borrador de la tabla:", e);
+  }
+}
+
+/* A draft only applies on top of the version it was edited from */
+function readDraft(base: string): Partial<Row>[] | null {
+  try {
+    const draft = JSON.parse(sessionStorage.getItem(draftKey()) || "null");
+    return draft && draft.base === base ? JSON.parse(draft.rows) : null;
+  } catch {
+    return null;
+  }
+}
+
+function clearDraft() {
+  try {
+    sessionStorage.removeItem(draftKey());
+  } catch { /* nothing was stored */ }
+}
+
 // The status line stays empty in normal use (as in 1.4.0) and only reports problems
 async function syncToField(): Promise<boolean> {
   if (!workItemService || lockReason) return false;
-  // Invalid rows are written too: the form recreates this iframe when switching tabs and the
-  // field is all that survives, while the form error keeps them from being saved
-  validateTable();
-
+  const valid = validateTable();
   const payload = JSON.stringify(getRows());
+
+  // Without the form error nothing stops a save, so invalid rows must stay out of the field:
+  // the last valid version is what gets saved, and a draft survives the iframe being recreated
+  if (!valid && !tableConfig.blockSaveOnError) {
+    writeDraft(payload);
+    return false;
+  }
+  clearDraft();
+
+  // Otherwise invalid rows are written too: the form recreates this iframe when switching tabs
+  // and the field is all that survives, while the form error keeps them from being saved
   if (payload === lastSyncedPayload) return true;
 
   // Record the payload before awaiting, so overlapping syncs don't write twice and
@@ -808,6 +844,7 @@ async function load() {
     const value = await workItemService.getFieldValue(dataFieldRefName);
     lockReason = await computeLockReason();
     const unsavedChanges = await fieldHasUnsavedChanges();
+    workItemId = await workItemService.getId().catch(() => 0);
 
     isLoadingData = true;
     tableTouched = unsavedChanges;
@@ -815,6 +852,13 @@ async function load() {
     parseStoredRows(value).forEach(row => createRow(row));
     // Baseline on what the table would write, so just opening the work item doesn't dirty it
     lastSyncedPayload = JSON.stringify(getRows());
+
+    const draft = tableConfig.blockSaveOnError ? null : readDraft(lastSyncedPayload);
+    if (draft) {
+      tableTouched = true;
+      tbody().innerHTML = "";
+      draft.forEach(row => createRow(row));
+    }
     isLoadingData = false;
 
     validateTable();
@@ -1030,11 +1074,22 @@ const provider = {
     await load();
   },
 
-  onSaved: () => {},
+  // What was saved is the last valid version, so a draft with errors is over: show what was saved
+  onSaved: async () => {
+    if (tableConfig.blockSaveOnError || !readDraft(lastSyncedPayload)) return;
+    clearDraft();
+    await load();
+  },
 
   // The form already holds the reverted/reloaded value: re-read it, never write the table back over it
-  onReset: load,
-  onRefreshed: load,
+  onReset: async () => {
+    clearDraft();
+    await load();
+  },
+  onRefreshed: async () => {
+    clearDraft();
+    await load();
+  },
 
   onUnloaded: async () => {
     await syncToField();
