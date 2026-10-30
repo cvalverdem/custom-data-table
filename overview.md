@@ -1,280 +1,281 @@
-# Tabla de datos para Azure DevOps
+# Custom Data Table for Azure DevOps
 
-Agrega una tabla editable a tus elementos de trabajo. Tú defines las columnas, sus tipos de dato y sus validaciones con un JSON, sin programar. Es ideal para planes de cambio, seguimiento de tareas y planificación.
+Add an editable table to your work items. Define its columns, data types and validations with JSON, with no coding. It works well for change plans, task tracking and planning.
 
-![Tabla con tres filas de un plan de cambio](images/tabla-ejemplo.png)
+![Table with three rows of a change plan](images/tabla-ejemplo.png)
 
-- **Fácil de llenar:** escribe directo en cada celda, con validación en el momento.
-- **Fácil de ordenar:** arrastra filas, duplícalas o inserta una nueva donde la necesites.
-- **Controlada:** bloquea la tabla en los estados que indiques e impide guardar datos incompletos.
-- **Configurable:** tú eliges las columnas, las reglas y las acciones disponibles.
-- **En español:** todos los textos y mensajes de la tabla están en español.
+- **Easy to fill in:** type directly into each cell and get validation as you go.
+- **Easy to organize:** drag rows, duplicate them or insert a new one where you need it.
+- **Controlled:** lock the table in the states you choose and block saving incomplete data.
+- **Configurable:** choose the columns, rules and available actions.
+
+> **Language:** this page is in English, but the table's buttons and messages and the control's options are in Spanish. This guide shows each Spanish label with its meaning. Your column names and validation messages can be in any language.
 
 ---
 
-# Guía de uso
+# User guide
 
-Esta sección es para quienes llenan la tabla dentro de un elemento de trabajo.
+This section is for people who fill in the table on a work item.
 
-## Agregar y editar filas
+## Add and edit rows
 
-1. Presiona **Agregar fila**.
-2. Completa las celdas. Los cambios pasan al elemento de trabajo mientras escribes.
-3. Presiona **Save** en el elemento de trabajo.
+1. Select **Agregar fila** (Add row).
+2. Fill in the cells. Your changes reach the work item as you type.
+3. Select **Save** on the work item.
 
-> **Importante:** la tabla no guarda el elemento de trabajo por ti. Si cierras la página sin presionar **Save**, Azure DevOps descarta los cambios, igual que con cualquier otro campo.
+> **Important:** the table doesn't save the work item for you. If you close the page without selecting **Save**, Azure DevOps discards the changes, as with any other field.
 
-## Escribir fechas
+## Enter dates
 
-Las columnas de fecha piden fecha y hora.
+Date columns ask for a date and a time.
 
-- **Con el teclado:** haz clic en el día y escribe todo de corrido. Por ejemplo, `301020271000` queda como `30/10/2027 10:00`.
-- **Con el calendario:** haz clic en el ícono del campo. El calendario ofrece los minutos de 5 en 5, pero al escribir puedes poner cualquier minuto.
-- **Formato:** el orden de día y mes, y el formato de la hora, dependen del idioma de tu navegador. El calendario también lo dibuja el navegador.
-- **Tecla Tab:** avanza por las partes de la fecha. Desde los minutos pasa al siguiente campo.
+- **With the keyboard:** click the first part of the date and type everything in one go. The year moves on to the hour by itself.
+- **With the calendar:** click the icon in the field. The calendar offers minutes in steps of 5, but you can type any minute.
+- **Format:** the order of day and month and the time format depend on your browser's language. The browser also draws the calendar.
+- **Tab key:** moves through the parts of the date. From the last part, it moves to the next field.
 
-## Abrir y copiar enlaces
+## Open and copy links
 
-En las columnas de URL, el botón junto al campo abre el enlace en otra pestaña. Al pasar el mouse sobre él, se ve la dirección completa. También funciona con la tabla bloqueada.
+In URL columns, the button next to the field opens the link in a new tab. Hover over it to see the full address. It also works when the table is locked.
 
-Para copiar la URL, haz clic en el campo, presiona `Ctrl+A` y luego `Ctrl+C`.
+To copy a URL, click the field and press `Ctrl+A`, then `Ctrl+C`.
 
-## Acciones de cada fila
+## Row actions
 
-| Control | Acción | Qué hace |
+| Control | Action | What it does |
 |---|---|---|
-| Asa ⠿ junto al número | Mover | Arrastra la fila a otra posición. Con el asa enfocada, también puedes usar las flechas ↑ ↓ |
-| Ícono azul | Duplicar | Crea una copia exacta de la fila justo debajo |
-| Ícono verde | Insertar debajo | Crea una fila nueva justo debajo |
-| Ícono rojo | Eliminar | Elimina la fila |
+| ⠿ handle next to the number | Move | Drag the row to another position. With the handle focused, you can also use the ↑ ↓ arrow keys |
+| Blue icon | Duplicate | Creates an exact copy of the row just below it |
+| Green icon | Insert below | Creates a new row just below it |
+| Red icon | Delete | Deletes the row |
 
-Si alguna no aparece, es porque la configuración de tu tabla no la incluye.
+If an action is missing, your table's configuration doesn't include it.
 
-## Corregir errores
+## Fix errors
 
-Los campos con problemas se marcan en rojo y el motivo aparece junto a **Agregar fila**.
+Fields with problems turn red, and the reason appears next to **Agregar fila** (Add row).
 
-![Fila nueva marcada en rojo con el mensaje "Faltan campos obligatorios en la fila 4"](images/tabla-errores.png)
+![New row marked in red, with a message saying that required fields are missing in row 4](images/tabla-errores.png)
 
-Mientras la tabla tenga errores, Azure DevOps muestra un aviso arriba del formulario, por ejemplo `Tabla de datos: Faltan campos obligatorios en la fila 4`, y no deja guardar. Completa los datos o elimina la fila para continuar.
+While the table has errors, Azure DevOps shows a notice at the top of the form and doesn't let you save. For example: `Tabla de datos: Faltan campos obligatorios en la fila 4` (required fields are missing in row 4). Complete the data or delete the row to continue.
 
-Si te cambias de pestaña en el formulario, las filas incompletas se conservan al volver. Solo se pierde una fecha a medio escribir.
+If you switch tabs on the form, incomplete rows are still there when you return. Only a partly typed date is lost.
 
-Una fecha sin hora cuenta como vacía. Si la columna no es obligatoria, no se marca como error, pero tampoco se guarda.
+A date without a time counts as empty. If the column isn't required, it isn't marked as an error, but it isn't saved either.
 
-## Tabla bloqueada
+## Locked table
 
-Cuando el elemento de trabajo está en un estado de solo lectura, como *Finalizado*, o no tienes permiso para editarlo, la tabla se muestra en gris y no se puede modificar. Los campos de texto largo se pueden seguir agrandando para leer todo el contenido.
+When the work item is in a read-only state, or you don't have permission to edit it, the table turns gray and can't be changed. You can still enlarge long text fields to read all their content.
 
-![Tabla bloqueada con los campos en gris](images/tabla-bloqueada.png)
+![Locked table with gray fields](images/tabla-bloqueada.png)
 
 ---
 
-# Guía de instalación
+# Installation guide
 
-Esta sección es para quienes administran la organización o el proceso de Azure DevOps.
+This section is for people who manage the Azure DevOps organization or process.
 
-## 1. Instalar la extensión
+## 1. Install the extension
 
-1. Abre la extensión en el [Marketplace](https://marketplace.visualstudio.com/items?itemName=CentroDeCompetencias.custom-data-table-control-v10).
-2. Presiona **Get it free**.
-3. Elige tu organización y presiona **Install**.
+1. Open the extension in the [Marketplace](https://marketplace.visualstudio.com/items?itemName=CentroDeCompetencias.custom-data-table-control-v10).
+2. Select **Get it free**.
+3. Choose your organization and select **Install**.
 
-## 2. Crear el campo de datos
+## 2. Create the data field
 
-La tabla guarda sus datos como JSON en un campo del elemento de trabajo.
+The table stores its data as JSON in a work item field.
 
-1. Ve a **Organization Settings → Process** y abre tu proceso heredado.
-2. Abre el tipo de elemento de trabajo, por ejemplo *User Story*.
-3. En la pestaña **Layout**, presiona **New field**.
-4. Crea un campo de tipo **Text (multiple lines)**.
+1. Go to **Organization Settings → Process** and open your inherited process.
+2. Open the work item type, for example *User Story*.
+3. On the **Layout** tab, select **New field**.
+4. Create a field of type **Text (multiple lines)**.
 
-## 3. Agregar el control
+## 3. Add the control
 
-1. En la pestaña **Layout**, presiona **Add custom control**.
-2. En **Definition**, selecciona **Tabla de datos**.
-3. En **Options**, completa las opciones de la siguiente tabla.
-4. En **Layout**, elige dónde se mostrará la tabla y presiona **OK**.
+1. On the **Layout** tab, select **Add custom control**.
+2. On **Definition**, select **Tabla de datos** (Data table).
+3. On **Options**, fill in the options in the following table.
+4. On **Layout**, choose where the table appears and select **OK**.
 
-| Opción | Qué poner |
+| Option | What to enter |
 |---|---|
-| **Campo de datos (nombre de referencia)** | El campo que creaste en el paso anterior |
-| **Campo de datos (ingreso manual)** | Solo si el selector no aparece: el nombre de referencia, por ejemplo `Custom.DataTableJSON` |
-| **Configuración de columnas (JSON)** | El JSON de tu tabla. Si lo dejas vacío, se usa la tabla por defecto: Descripción, Responsable, Fecha y hora inicio, Fecha y hora fin |
-| **Fuente** | Fuente de la tabla. Es opcional |
-| **Tamaño de fuente** | Tamaño de letra de la tabla. Es opcional |
+| **Campo de datos (nombre de referencia)** (Data field, reference name) | The field you created in the previous step |
+| **Campo de datos (ingreso manual)** (Data field, manual entry) | Only if the selector doesn't appear: the reference name, for example `Custom.DataTableJSON` |
+| **Configuración de columnas (JSON)** (Column configuration) | Your table's JSON. If you leave it empty, a default table is used, with four columns in Spanish for description, owner, start and end |
+| **Fuente** (Font) | The table's font. Optional |
+| **Tamaño de fuente** (Font size) | The table's text size. Optional |
 
-## 4. Comprobar
+## 4. Check it
 
-Abre un elemento de trabajo de ese tipo, agrega una fila y guárdalo. Si la configuración tiene un error, la tabla no se muestra y aparece un aviso con el detalle.
+Open a work item of that type, add a row and save it. If the configuration has an error, the table doesn't appear and a notice shows the details.
 
 ---
 
-# Configuración
+# Configuration
 
-## Ejemplo completo
+## Full example
 
-Este JSON crea una tabla para planes de cambio. Cada tarea empieza cuando termina la anterior, la fecha de inicio debe ser menor que la de fin y la tabla se bloquea en *Finalizado*.
+This JSON creates a table for change plans. Each task starts when the previous one ends, the start date must be earlier than the end date, and the table locks in the *Closed* state.
 
 ```json
 {
   "columns": [
-    { "id": "descripcion", "name": "Descripción", "dataType": "textArea", "required": true, "width": "55%" },
-    { "id": "responsable", "name": "Responsable", "dataType": "string", "required": true, "width": "25%" },
-    { "id": "fechaInicio", "name": "Fecha y hora inicio", "dataType": "date", "required": true, "width": "10%", "defaultFromPrevious": "fechaFin" },
-    { "id": "fechaFin", "name": "Fecha y hora fin", "dataType": "date", "required": true, "width": "10%" }
+    { "id": "description", "name": "Description", "dataType": "textArea", "required": true, "width": "55%" },
+    { "id": "owner", "name": "Owner", "dataType": "string", "required": true, "width": "25%" },
+    { "id": "start", "name": "Start", "dataType": "date", "required": true, "width": "10%", "defaultFromPrevious": "end" },
+    { "id": "end", "name": "End", "dataType": "date", "required": true, "width": "10%" }
   ],
   "rules": [
     {
       "type": "dateOrder",
-      "startColumnId": "fechaInicio",
-      "endColumnId": "fechaFin",
-      "message": "La fecha inicial debe ser menor que la fecha final"
+      "startColumnId": "start",
+      "endColumnId": "end",
+      "message": "The start date must be earlier than the end date"
     }
   ],
-  "readOnlyStates": ["Finalizado"],
+  "readOnlyStates": ["Closed"],
   "rowActions": ["move", "duplicate", "insert", "delete"],
   "blockSaveOnError": true
 }
 ```
 
-Solo `columns` es obligatorio. Las demás opciones se pueden omitir.
+Only `columns` is required. You can leave out the other options.
 
-## Columnas
+## Columns
 
-| Propiedad | Obligatoria | Descripción |
+| Property | Required | Description |
 |---|---|---|
-| `id` | Sí | Identificador único de la columna. No debe repetirse |
-| `name` | Sí | Título que se muestra en el encabezado |
-| `dataType` | Sí | Tipo de dato (ver la siguiente tabla) |
-| `required` | No | Con `true`, la celda no puede quedar vacía |
-| `width` | No | Ancho de la columna, por ejemplo `"25%"` o `"200px"` |
-| `defaultValue` | No | Valor inicial en las filas nuevas |
-| `options` | Solo en `dropdown` | Lista de opciones, por ejemplo `["Alta", "Media", "Baja"]` |
-| `defaultFromPrevious` | No | Toma el valor inicial de la fila anterior (ver más abajo) |
+| `id` | Yes | Unique column identifier. It can't be repeated |
+| `name` | Yes | Title shown in the header |
+| `dataType` | Yes | Data type (see the next table) |
+| `required` | No | With `true`, the cell can't be left empty |
+| `width` | No | Column width, for example `"25%"` or `"200px"` |
+| `defaultValue` | No | Initial value in new rows |
+| `options` | Only for `dropdown` | List of options, for example `["High", "Medium", "Low"]` |
+| `defaultFromPrevious` | No | Takes the initial value from the previous row (see below) |
 
-| `dataType` | Se muestra como |
+| `dataType` | Shown as |
 |---|---|
-| `string` | Texto de una línea |
-| `textArea` | Texto de varias líneas, con tamaño ajustable |
-| `number` | Número entero o decimal |
-| `boolean` | Casilla de verificación |
-| `date` | Fecha y hora |
-| `dropdown` | Lista de opciones |
-| `url` | Dirección web, con un botón para abrirla en otra pestaña |
+| `string` | Single-line text |
+| `textArea` | Multi-line text, with adjustable size |
+| `number` | Integer or decimal number |
+| `boolean` | Checkbox |
+| `date` | Date and time |
+| `dropdown` | List of options |
+| `url` | Web address, with a button to open it in a new tab |
 
-> **Antes de cambiar el `id` de una columna:** los datos se guardan por `id`. Si lo cambias, los datos anteriores de esa columna dejan de mostrarse y dejan de guardarse la próxima vez que alguien edite la tabla. Seguirán disponibles en el historial del elemento de trabajo.
+> **Before you change a column's `id`:** data is stored by `id`. If you change it, the column's earlier data stops appearing and stops being saved the next time someone edits the table. It remains available in the work item's history.
 
-### Columnas de URL
+### URL columns
 
 ```json
-{ "id": "secreto", "name": "Secreto", "dataType": "url", "required": true }
+{ "id": "link", "name": "Link", "dataType": "url", "required": true }
 ```
 
-- Solo acepta direcciones que empiecen con `http://` o `https://`. Cualquier otro valor se marca como error.
-- Si cambias una columna `string` a `url`, los datos no cambian. Los valores que no sean URL se marcan en rojo, y al editar la tabla hay que corregirlos para poder guardar.
-- No pegues secretos dentro de una URL: quedan visibles en el historial del elemento de trabajo.
+- Only addresses that start with `http://` or `https://` are accepted. Any other value is marked as an error.
+- If you change a `string` column to `url`, the data doesn't change. Values that aren't URLs turn red, and they must be fixed before saving once someone edits the table.
+- Don't paste secrets into a URL: they stay visible in the work item's history.
 
-### Valores desde la fila anterior
+### Values from the previous row
 
-Con `defaultFromPrevious`, una fila nueva toma un valor de la fila anterior:
+With `defaultFromPrevious`, a new row takes a value from the previous row:
 
 ```json
-{ "id": "fechaInicio", "name": "Fecha y hora inicio", "dataType": "date", "defaultFromPrevious": "fechaFin" }
+{ "id": "start", "name": "Start", "dataType": "date", "defaultFromPrevious": "end" }
 ```
 
-- Usa el `id` de la columna que quieres copiar, o `true` para copiar la misma columna.
-- Si la fila anterior está vacía en esa columna, se usa `defaultValue`.
-- Solo aplica al crear filas: no modifica las existentes ni se recalcula si luego cambias la fila anterior.
+- Use the `id` of the column to copy, or `true` to copy the same column.
+- If the previous row is empty in that column, `defaultValue` is used.
+- It only applies when a row is created: it doesn't change existing rows or recalculate if you later change the previous row.
 
-## Regla de fechas
+## Date rule
 
-`dateOrder` valida que una fecha sea menor que otra de la misma fila.
+`dateOrder` checks that one date is earlier than another in the same row.
 
-| Propiedad | Descripción |
+| Property | Description |
 |---|---|
-| `type` | Siempre `"dateOrder"` |
-| `startColumnId` | Columna con la fecha menor. También acepta `start` |
-| `endColumnId` | Columna con la fecha mayor. También acepta `end` |
-| `message` | Mensaje que se muestra si no se cumple |
+| `type` | Always `"dateOrder"` |
+| `startColumnId` | Column with the earlier date. `start` also works |
+| `endColumnId` | Column with the later date. `end` also works |
+| `message` | Message shown when the rule isn't met |
 
-## Acciones por fila
+## Row actions
 
-`rowActions` define qué controles se muestran. Por defecto aparecen todos.
+`rowActions` defines which controls appear. By default, all of them do.
 
-| Valor | Control |
+| Value | Control |
 |---|---|
-| `"move"` | Asa para arrastrar la fila |
-| `"duplicate"` | Duplicar |
-| `"insert"` | Insertar debajo |
-| `"delete"` | Eliminar |
+| `"move"` | Handle to drag the row |
+| `"duplicate"` | Duplicate |
+| `"insert"` | Insert below |
+| `"delete"` | Delete |
 
-- El orden en pantalla es siempre el mismo, sin importar el orden de la lista.
-- También acepta un texto separado por comas: `"duplicate, delete"`.
-- Con `[]` no se muestra ninguna acción ni la columna *Acción*. Se puede seguir usando **Agregar fila**.
+- The order on screen is always the same, regardless of the order in the list.
+- Comma-separated text also works: `"duplicate, delete"`.
+- With `[]`, no actions appear and the action column is hidden. **Agregar fila** (Add row) remains available.
 
-## Bloqueo por estado
+## Lock by state
 
-`readOnlyStates` lista los estados del elemento de trabajo en los que la tabla no se puede editar:
+`readOnlyStates` lists the work item states in which the table can't be edited:
 
 ```json
-"readOnlyStates": ["Finalizado", "Cerrado"]
+"readOnlyStates": ["Closed", "Done"]
 ```
 
-- El bloqueo se aplica en cuanto cambias el estado en el formulario, incluso antes de guardar, y se quita si vuelves a otro estado.
-- No distingue mayúsculas y minúsculas, pero sí acentos: el nombre debe coincidir con el estado del proceso.
-- También acepta un texto separado por comas: `"Finalizado, Cerrado"`.
-- La tabla también se bloquea sola si Azure DevOps abre el elemento de trabajo en modo de solo lectura.
-- Si cambias a uno de estos estados con filas incompletas sin guardar, Azure DevOps no deja guardar. Vuelve al estado anterior para corregirlas o eliminarlas.
+- The lock applies as soon as you change the state on the form, even before saving, and lifts if you return to another state.
+- It ignores uppercase and lowercase, but not accents: the name must match the process state.
+- Comma-separated text also works: `"Closed, Done"`.
+- The table also locks by itself when Azure DevOps opens the work item as read-only.
+- If you change to one of these states with unsaved incomplete rows, Azure DevOps doesn't let you save. Return to the previous state to fix or delete them.
 
-> **Este bloqueo es solo de la interfaz.** Para que el campo tampoco se pueda cambiar por edición masiva, Excel o la API, crea además una regla en el proceso: en **Rules → New rule**, usa la condición *When the work item state is* `Finalizado` y la acción *Make read-only* sobre el campo de la tabla.
+> **This lock only applies to the form.** To also prevent changes through bulk edit, Excel or the API, add a process rule: under **Rules → New rule**, use the condition *When the work item state is* `Closed` and the action *Make read-only* on the table's field.
 
-## Bloqueo del guardado
+## Block saving
 
-Por defecto, si la tabla editada tiene errores, Azure DevOps no deja guardar el elemento de trabajo. Para desactivarlo:
+By default, if an edited table has errors, Azure DevOps doesn't let you save the work item. To turn this off:
 
 ```json
 "blockSaveOnError": false
 ```
 
-- Con `false`, los errores solo se marcan en la tabla y el elemento de trabajo se puede guardar. Se guarda la última versión válida de la tabla, nunca filas incompletas.
-- Las filas con errores se conservan al cambiar de pestaña en el formulario. Quedan en esa pestaña del navegador hasta corregirlas, deshacer los cambios o guardar.
-- **Riesgo con `false`:** al guardar con errores, la tabla vuelve a la última versión válida y se descartan los cambios hechos desde entonces, incluidos los de filas correctas.
-- Solo se activa al editar la tabla: abrir un elemento con datos incompletos no impide guardar otros campos.
-- Debe ser `true` o `false`, sin comillas.
+- With `false`, errors are only marked in the table and the work item can be saved. The last valid version of the table is saved, never incomplete rows.
+- Rows with errors are kept when you switch tabs on the form. They stay in that browser tab until you fix them, undo the changes or save.
+- **Risk with `false`:** when you save with errors, the table returns to its last valid version and any changes made since then are discarded, including those in correct rows.
+- It only applies once the table is edited: opening a work item with incomplete data doesn't prevent saving other fields.
+- It must be `true` or `false`, without quotes.
 
-## Nombre de la tabla en los avisos
+## Table name in notices
 
-`tableName` define cómo se nombra la tabla en el aviso de arriba del formulario. Por defecto es *Tabla de datos*. Es útil si el formulario tiene más de una tabla:
+`tableName` sets how the notice at the top of the form names the table. The default is *Tabla de datos*. It's useful when a form has more than one table:
 
 ```json
-"tableName": "Plan de rollback"
+"tableName": "Rollback plan"
 ```
 
-Con esa opción, el aviso dice `Plan de rollback: Faltan campos obligatorios en la fila 2`.
+With that option, the notice says `Rollback plan: Faltan campos obligatorios en la fila 2`.
 
-## Más ejemplos
+## More examples
 
-**Seguimiento de tareas**
+**Task tracking**
 
 ```json
 {
   "columns": [
-    { "id": "tarea", "name": "Tarea", "dataType": "string", "required": true },
-    { "id": "horas", "name": "Horas", "dataType": "number", "defaultValue": 0 },
-    { "id": "completado", "name": "Completado", "dataType": "boolean", "defaultValue": false }
+    { "id": "task", "name": "Task", "dataType": "string", "required": true },
+    { "id": "hours", "name": "Hours", "dataType": "number", "defaultValue": 0 },
+    { "id": "done", "name": "Done", "dataType": "boolean", "defaultValue": false }
   ]
 }
 ```
 
-**Lista con prioridades y solo dos acciones**
+**List with priorities and only two actions**
 
 ```json
 {
   "columns": [
-    { "id": "item", "name": "Elemento", "dataType": "textArea", "required": true },
-    { "id": "prioridad", "name": "Prioridad", "dataType": "dropdown", "options": ["Alta", "Media", "Baja"], "defaultValue": "Media" },
-    { "id": "fechaLimite", "name": "Fecha límite", "dataType": "date" }
+    { "id": "item", "name": "Item", "dataType": "textArea", "required": true },
+    { "id": "priority", "name": "Priority", "dataType": "dropdown", "options": ["High", "Medium", "Low"], "defaultValue": "Medium" },
+    { "id": "dueDate", "name": "Due date", "dataType": "date" }
   ],
   "rowActions": ["move", "delete"]
 }
@@ -282,37 +283,36 @@ Con esa opción, el aviso dice `Plan de rollback: Faltan campos obligatorios en 
 
 ---
 
-# Problemas frecuentes
+# Troubleshooting
 
-En uso normal, la tabla no muestra mensajes de estado. Solo aparece un aviso si hay un problema.
+In normal use, the table doesn't show status messages. A notice only appears when there's a problem.
 
-| Mensaje | Qué significa | Qué hacer |
+| Message | What it means | What to do |
 |---|---|---|
-| `⚠️ Configuración de columnas inválida: …` | El JSON tiene un error. La tabla no se muestra y no se lee ni se escribe el campo, para no dañar los datos | Corrige lo que indica el mensaje en las opciones del control |
-| `⚠️ Campo no encontrado o no editable: …` | El campo configurado no existe en ese tipo de elemento de trabajo | Revisa el campo de datos en las opciones del control |
-| `Faltan campos obligatorios en la fila …` | Hay una celda obligatoria vacía en esa fila. Una fecha sin hora cuenta como vacía | Completa la fila o elimínala |
-| `URL no válida en la fila …` | Una columna de URL tiene un valor que no empieza con `http://` o `https://` | Corrige la dirección o elimina la fila |
-| `La fecha inicial debe ser menor que la fecha final` | No se cumple una regla de fechas. El texto puede variar según la configuración | Corrige las fechas de la fila marcada |
-| `No se pudo actualizar el campo` | Azure DevOps rechazó el valor | Comprueba que puedes editar el campo y vuelve a intentarlo |
-| `Error al actualizar el campo (ver consola).` | Ocurrió un error inesperado al escribir en el campo | Recarga la página. Si continúa, avisa al administrador de tu organización |
-| `Error al cargar` o `Error al inicializar` | La tabla no pudo cargar | Recarga la página. Si continúa, avisa al administrador de tu organización |
+| `⚠️ Configuración de columnas inválida: …` | The JSON has an error. The table doesn't appear and the field isn't read or written, to protect your data | Fix what the message indicates in the control's options |
+| `⚠️ Campo no encontrado o no editable: …` | The configured field doesn't exist on that work item type or can't be edited | Check the data field in the control's options |
+| `Faltan campos obligatorios en la fila …` | A required cell in that row is empty. A date without a time counts as empty | Complete the row or delete it |
+| `URL no válida en la fila …` | A URL column has a value that doesn't start with `http://` or `https://` | Fix the address or delete the row |
+| Your `dateOrder` rule's `message` | A date rule isn't met. Without a custom message, it says `La fecha inicial debe ser menor que la fecha final` | Fix the dates in the marked row |
+| `No se pudo actualizar el campo` | Azure DevOps rejected the value | Check that you can edit the field and try again |
+| `Error al actualizar el campo (ver consola).` | An unexpected error occurred while writing to the field | Reload the page. If it continues, contact your organization's administrator |
+| `Error al cargar` or `Error al inicializar` | The table couldn't load | Reload the page. If it continues, contact your organization's administrator |
 
 ---
 
-# Novedades de la versión 1.5
+# What's new in version 1.5
 
-- Agrega columnas de URL con `"dataType": "url"`, que validan la dirección y permiten abrirla con un clic.
-- Arrastra filas para cambiar su orden.
-- Duplica una fila o inserta una nueva debajo. Las acciones ahora son íconos de colores y se pueden configurar con `rowActions`.
-- Bloquea la tabla por estado con `readOnlyStates`.
-- Toma valores de la fila anterior con `defaultFromPrevious`.
-- Escribe fechas de corrido: del año pasa solo a la hora, y Tab ya no se detiene en el ícono del calendario.
-- Nuevo ícono de la extensión.
+- Add URL columns with `"dataType": "url"`, which validate the address and open it with one click.
+- Drag rows to change their order.
+- Duplicate a row or insert a new one below it. Actions are now colored icons, configurable with `rowActions`.
+- Lock the table by state with `readOnlyStates`.
+- Take values from the previous row with `defaultFromPrevious`.
+- Type dates in one go: the year moves on to the hour by itself, and Tab no longer stops at the calendar icon.
+- New name and extension icon.
 
-**Si actualizas desde la versión 1.4:**
+**If you're updating from version 1.4:**
 
-- **No tienes que reinstalar ni reconfigurar:** los controles y los datos existentes se conservan.
-- **El guardado se bloquea si la tabla editada tiene errores:** para el comportamiento anterior, usa `"blockSaveOnError": false`.
-- **Un JSON inválido ahora muestra un aviso:** antes la tabla usaba columnas por defecto. Revisa la configuración de tus controles.
-- **El control ahora se llama "Tabla de datos":** antes se llamaba *Custom Data Table (DataTables) v3*.
-
+- **You don't need to reinstall or reconfigure:** existing controls and data are kept.
+- **Saving is blocked when an edited table has errors:** to save anyway, use `"blockSaveOnError": false`. With that option, only the last valid version of the table is saved.
+- **Invalid JSON now shows a notice:** the table used to fall back to default columns. Check your controls' configuration.
+- **The control is now named "Tabla de datos":** it used to be called *Custom Data Table (DataTables) v3*.
