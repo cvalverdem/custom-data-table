@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <title>Tabla de datos</title>
+  <path fill="#003F24" d="M12 0H128V102L102 128H0V12Z"/>
+  <rect fill="#29D65A" x="22" y="26" width="84" height="16"/>
+  <g fill="#FFFFFF">
+    <rect x="22" y="47" width="16" height="14"/>
+    <rect x="43" y="47" width="36" height="14"/>
+    <rect x="84" y="47" width="22" height="14"/>
+    <rect x="22" y="66" width="16" height="14"/>
+    <rect x="43" y="66" width="36" height="14"/>
+    <rect x="84" y="66" width="22" height="14"/>
+    <rect x="22" y="85" width="16" height="14"/>
+    <rect x="43" y="85" width="36" height="14"/>
+    <rect x="84" y="85" width="22" height="14"/>
+  </g>
+</svg>
