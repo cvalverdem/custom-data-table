@@ -1,5 +1,15 @@
 # Historial de cambios
 
+## 1.5.7
+
+### Agregado
+
+- **Etiquetas del Marketplace:** `table`, `data table`, `work item` y `change plan`, para encontrar la extensión al buscar. No cambian el funcionamiento de la tabla.
+
+### Corregido
+
+- **Tema oscuro:** la tabla ahora sigue el tema elegido en Azure DevOps. Antes seguía el tema de Windows o del navegador.
+
 ## 1.5.6
 
 ### Cambiado

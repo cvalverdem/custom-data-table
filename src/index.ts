@@ -1157,6 +1157,12 @@ const provider = {
   }
 };
 
+// The SDK sets the body text color from the user's Azure DevOps theme: light text means a dark theme
+window.addEventListener("themeApplied", () => {
+  const [red, green, blue] = (getComputedStyle(document.body).color.match(/[\d.]+/g) ?? []).map(Number);
+  document.documentElement.dataset.theme = (red + green + blue) / 3 > 127 ? "dark" : "light";
+});
+
 SDK.init({ loaded: false });
 SDK.ready().then(() => {
   SDK.register(SDK.getContributionId(), provider);
