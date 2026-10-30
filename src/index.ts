@@ -43,6 +43,7 @@ type Row = { _id: number; [columnId: string]: unknown };
 const WORK_ITEM_FORM_SERVICE = "ms.vss-work-web.work-item-form";
 const DEFAULT_FIELD = "Custom.DataTableJSON";
 const REQUIRED_MESSAGE = "Debe completar todos los campos";
+const CALENDAR_ICON_WIDTH = 28; // px at the right edge of a date field that open the calendar
 const DATE_ORDER_MESSAGE = "La fecha inicial debe ser menor que la fecha final";
 const DROPDOWN_PLACEHOLDER = "— Seleccione —";
 const FORM_ERROR_PREFIX = "Tabla de datos: ";
@@ -842,6 +843,35 @@ function wireEvents() {
     body.classList.add("is-tabbing");
     setTimeout(() => body.classList.remove("is-tabbing"));
   }, true);
+
+  // The native calendar is a browser popup that stays open when the focus leaves this iframe.
+  // There's no API to close it, but recreating the field's internals does; the value is kept
+  let openCalendar: HTMLInputElement | null = null;
+  const closeCalendar = () => {
+    const input = openCalendar;
+    openCalendar = null;
+    if (!input) return;
+    input.type = "text";
+    input.type = "datetime-local";
+  };
+  const asDateInput = (target: EventTarget | null) =>
+    target instanceof HTMLInputElement && target.type === "datetime-local" && !target.readOnly ? target : null;
+
+  document.addEventListener("pointerdown", event => {
+    const input = asDateInput(event.target);
+    if (input === openCalendar) return;
+    closeCalendar();
+    if (input && event.clientX > input.getBoundingClientRect().right - CALENDAR_ICON_WIDTH) openCalendar = input;
+  }, true);
+  document.addEventListener("keydown", event => {
+    const input = asDateInput(event.target);
+    if (input && event.altKey && event.key === "ArrowDown") openCalendar = input;
+    else if (input === openCalendar) openCalendar = null; // keys only reach the field while the calendar is closed
+  }, true);
+  body.addEventListener("input", event => {
+    if (event.target === openCalendar) openCalendar = null; // choosing a date closes the calendar
+  });
+  window.addEventListener("blur", closeCalendar);
 
   // Save when user switches tabs/minimizes
   document.addEventListener("visibilitychange", () => {

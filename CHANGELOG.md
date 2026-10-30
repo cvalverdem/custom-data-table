@@ -1,5 +1,11 @@
 # Historial de cambios
 
+## 1.5.1
+
+### Corregido
+
+- **Calendario:** se cierra cuando la tabla pierde el foco, por ejemplo al hacer clic en otra parte del formulario.
+
 ## 1.5
 
 ### Agregado
