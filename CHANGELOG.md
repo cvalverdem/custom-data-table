@@ -1,5 +1,11 @@
 # Historial de cambios
 
+## 1.5.5
+
+### Cambiado
+
+- **Página de la extensión:** se quitaron los enlaces al repositorio.
+
 ## 1.5.4
 
 ### Agregado

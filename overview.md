@@ -294,8 +294,8 @@ En uso normal, la tabla no muestra mensajes de estado. Solo aparece un aviso si 
 | `URL no válida en la fila …` | Una columna de URL tiene un valor que no empieza con `http://` o `https://` | Corrige la dirección o elimina la fila |
 | `La fecha inicial debe ser menor que la fecha final` | No se cumple una regla de fechas. El texto puede variar según la configuración | Corrige las fechas de la fila marcada |
 | `No se pudo actualizar el campo` | Azure DevOps rechazó el valor | Comprueba que puedes editar el campo y vuelve a intentarlo |
-| `Error al actualizar el campo (ver consola).` | Ocurrió un error inesperado al escribir en el campo | Recarga la página. Si continúa, reporta el problema |
-| `Error al cargar` o `Error al inicializar` | La tabla no pudo cargar | Recarga la página. Si continúa, reporta el problema |
+| `Error al actualizar el campo (ver consola).` | Ocurrió un error inesperado al escribir en el campo | Recarga la página. Si continúa, avisa al administrador de tu organización |
+| `Error al cargar` o `Error al inicializar` | La tabla no pudo cargar | Recarga la página. Si continúa, avisa al administrador de tu organización |
 
 ---
 
@@ -316,8 +316,3 @@ En uso normal, la tabla no muestra mensajes de estado. Solo aparece un aviso si 
 - **Un JSON inválido ahora muestra un aviso:** antes la tabla usaba columnas por defecto. Revisa la configuración de tus controles.
 - **El control ahora se llama "Tabla de datos":** antes se llamaba *Custom Data Table (DataTables) v3*.
 
----
-
-**Repositorio:** https://github.com/cvalverdem/custom-data-table
-
-**Reportar un problema:** https://github.com/cvalverdem/custom-data-table/issues
