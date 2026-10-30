@@ -5,7 +5,7 @@
   "version": "1.5.0",
   "name": "Data Table Extension",
   "description": "Control de tabla configurable para elementos de trabajo de Azure DevOps. Define columnas, tipos de dato y validaciones con JSON. Ideal para planes de cambio, seguimiento de tareas y planificación.",
-  "public": false,
+  "public": true,
   "categories": [
     "Azure Boards"
   ],

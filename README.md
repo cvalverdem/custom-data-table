@@ -15,7 +15,7 @@ Extensión de Azure DevOps que agrega una tabla editable a los elementos de trab
 
 ## Inicio rápido
 
-1. Instala la extensión en tu organización. Es privada, así que primero debe compartirse con ella.
+1. Instala la extensión en tu organización desde el [Marketplace](https://marketplace.visualstudio.com/items?itemName=CentroDeCompetencias.custom-data-table-control-v10).
 2. En tu proceso heredado, crea un campo de tipo **Text (multiple lines)**.
 3. En **Layout → Add custom control**, selecciona **Tabla de datos**.
 4. En **Options**, elige el campo y pega tu configuración:

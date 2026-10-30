@@ -20,7 +20,7 @@
 - **Nombre del control:** ahora es "Tabla de datos".
 - **Idioma:** las opciones del control y la configuración por defecto están en español.
 - **Ícono:** nuevo, con la identidad de Grupo Promerica.
-- **Publicación:** la extensión es privada y el paquete solo incluye los archivos necesarios.
+- **Paquete:** solo incluye los archivos necesarios.
 - **Código:** una sola implementación en TypeScript, sin jQuery, DataTables ni select2.
 - **Documentación:** la guía se reescribió por tipo de lector y se agregó este historial.
 

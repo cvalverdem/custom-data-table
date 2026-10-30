@@ -68,11 +68,9 @@ Esta sección es para quienes administran la organización o el proceso de Azure
 
 ## 1. Instalar la extensión
 
-La extensión es privada: solo la ven las organizaciones con las que el publicador la comparte.
-
-1. Pide al publicador que comparta la extensión con tu organización.
-2. Ve a **Organization Settings → Extensions → Shared**.
-3. Abre **Data Table Extension** e instálala.
+1. Abre la extensión en el [Marketplace](https://marketplace.visualstudio.com/items?itemName=CentroDeCompetencias.custom-data-table-control-v10).
+2. Presiona **Get it free**.
+3. Elige tu organización y presiona **Install**.
 
 ## 2. Crear el campo de datos
 
