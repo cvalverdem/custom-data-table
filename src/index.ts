@@ -296,6 +296,8 @@ function createControl(column: ColumnDefinition, value: unknown): HTMLInputEleme
       const input = document.createElement("input");
       input.type = "datetime-local";
       input.step = "300";
+      // Without a 4-digit limit the year takes 6 digits and typing never moves on to the hour
+      input.max = "9999-12-31T23:59";
       input.value = toLocalDateTimeValue(source);
       control = input;
       break;
@@ -833,6 +835,13 @@ function wireEvents() {
 
     scheduleAutoSync(250);
   });
+
+  // Tab skips the native calendar icon: hidden only while the browser moves the focus
+  document.addEventListener("keydown", event => {
+    if (event.key !== "Tab") return;
+    body.classList.add("is-tabbing");
+    setTimeout(() => body.classList.remove("is-tabbing"));
+  }, true);
 
   // Save when user switches tabs/minimizes
   document.addEventListener("visibilitychange", () => {

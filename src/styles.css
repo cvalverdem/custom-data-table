@@ -191,6 +191,9 @@ html, body { background: transparent; }
   height: 30px;
   padding: 3px 6px;
 }
+#gridTable tbody.is-tabbing input::-webkit-calendar-picker-indicator {
+  visibility: hidden;
+}
 #gridTable textarea {
   min-height: 52px;
   resize: vertical;
