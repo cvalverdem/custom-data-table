@@ -33,6 +33,12 @@ Las columnas de fecha piden fecha y hora.
 - **Formato:** el orden de día y mes, y el formato de la hora, dependen del idioma de tu navegador. El calendario también lo dibuja el navegador.
 - **Tecla Tab:** avanza por las partes de la fecha. Desde los minutos pasa al siguiente campo.
 
+## Abrir y copiar enlaces
+
+En las columnas de URL, el botón junto al campo abre el enlace en otra pestaña. Al pasar el mouse sobre él, se ve la dirección completa. También funciona con la tabla bloqueada.
+
+Para copiar la URL, haz clic en el campo, presiona `Ctrl+A` y luego `Ctrl+C`.
+
 ## Acciones de cada fila
 
 | Control | Acción | Qué hace |
@@ -155,8 +161,19 @@ Solo `columns` es obligatorio. Las demás opciones se pueden omitir.
 | `boolean` | Casilla de verificación |
 | `date` | Fecha y hora |
 | `dropdown` | Lista de opciones |
+| `url` | Dirección web, con un botón para abrirla en otra pestaña |
 
 > **Antes de cambiar el `id` de una columna:** los datos se guardan por `id`. Si lo cambias, los datos anteriores de esa columna dejan de mostrarse y dejan de guardarse la próxima vez que alguien edite la tabla. Seguirán disponibles en el historial del elemento de trabajo.
+
+### Columnas de URL
+
+```json
+{ "id": "secreto", "name": "Secreto", "dataType": "url", "required": true }
+```
+
+- Solo acepta direcciones que empiecen con `http://` o `https://`. Cualquier otro valor se marca como error.
+- Si cambias una columna `string` a `url`, los datos no cambian. Los valores que no sean URL se marcan en rojo, y al editar la tabla hay que corregirlos para poder guardar.
+- No pegues secretos dentro de una URL: quedan visibles en el historial del elemento de trabajo.
 
 ### Valores desde la fila anterior
 
@@ -274,6 +291,7 @@ En uso normal, la tabla no muestra mensajes de estado. Solo aparece un aviso si 
 | `⚠️ Configuración de columnas inválida: …` | El JSON tiene un error. La tabla no se muestra y no se lee ni se escribe el campo, para no dañar los datos | Corrige lo que indica el mensaje en las opciones del control |
 | `⚠️ Campo no encontrado o no editable: …` | El campo configurado no existe en ese tipo de elemento de trabajo | Revisa el campo de datos en las opciones del control |
 | `Faltan campos obligatorios en la fila …` | Hay una celda obligatoria vacía en esa fila. Una fecha sin hora cuenta como vacía | Completa la fila o elimínala |
+| `URL no válida en la fila …` | Una columna de URL tiene un valor que no empieza con `http://` o `https://` | Corrige la dirección o elimina la fila |
 | `La fecha inicial debe ser menor que la fecha final` | No se cumple una regla de fechas. El texto puede variar según la configuración | Corrige las fechas de la fila marcada |
 | `No se pudo actualizar el campo` | Azure DevOps rechazó el valor | Comprueba que puedes editar el campo y vuelve a intentarlo |
 | `Error al actualizar el campo (ver consola).` | Ocurrió un error inesperado al escribir en el campo | Recarga la página. Si continúa, reporta el problema |
@@ -283,6 +301,7 @@ En uso normal, la tabla no muestra mensajes de estado. Solo aparece un aviso si 
 
 # Novedades de la versión 1.5
 
+- Agrega columnas de URL con `"dataType": "url"`, que validan la dirección y permiten abrirla con un clic.
 - Arrastra filas para cambiar su orden.
 - Duplica una fila o inserta una nueva debajo. Las acciones ahora son íconos de colores y se pueden configurar con `rowActions`.
 - Bloquea la tabla por estado con `readOnlyStates`.

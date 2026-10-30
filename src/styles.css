@@ -204,6 +204,32 @@ body { margin: 0; padding: 8px; }
   padding-bottom: 4px;
 }
 
+/* ---------- URL columns ---------- */
+.url-field {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.url-open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--az-radius);
+  color: var(--az-muted);
+  fill: currentColor;
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.url-open[href] {
+  color: var(--az-primary);
+  opacity: 1;
+  cursor: pointer;
+}
+.url-open[href]:hover { background: var(--az-hover); }
+
 /* ---------- Row reordering ---------- */
 #gridTable td.row-index {
   white-space: nowrap;

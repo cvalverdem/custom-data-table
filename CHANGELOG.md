@@ -1,5 +1,11 @@
 # Historial de cambios
 
+## 1.5.4
+
+### Agregado
+
+- **Columnas de URL:** `"dataType": "url"` valida que la dirección empiece con `http://` o `https://` y agrega un botón para abrirla en otra pestaña.
+
 ## 1.5.3
 
 ### Cambiado

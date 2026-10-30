@@ -5,7 +5,7 @@ import "./styles.css";
 
 /* ───────────────────────── Types & constants ───────────────────────── */
 
-type DataType = "string" | "textarea" | "number" | "boolean" | "date" | "dropdown";
+type DataType = "string" | "textarea" | "number" | "boolean" | "date" | "dropdown" | "url";
 
 interface ColumnDefinition {
   id: string;
@@ -44,6 +44,7 @@ type Row = { _id: number; [columnId: string]: unknown };
 const WORK_ITEM_FORM_SERVICE = "ms.vss-work-web.work-item-form";
 const DEFAULT_FIELD = "Custom.DataTableJSON";
 const REQUIRED_FIELD_MESSAGE = "Este campo es obligatorio";
+const INVALID_URL_MESSAGE = "Debe ser una URL que empiece con http:// o https://";
 const CALENDAR_ICON_WIDTH = 28; // px at the right edge of a date field that open the calendar
 const DATE_ORDER_MESSAGE = "La fecha inicial debe ser menor que la fecha final";
 const DROPDOWN_PLACEHOLDER = "— Seleccione —";
@@ -90,7 +91,7 @@ function pad2(n: number): string {
 
 function normalizeDataType(type: unknown): DataType {
   const raw = String(type || "string").trim().toLowerCase();
-  if (["string", "textarea", "number", "boolean", "date", "dropdown"].includes(raw)) return raw as DataType;
+  if (["string", "textarea", "number", "boolean", "date", "dropdown", "url"].includes(raw)) return raw as DataType;
   return "string";
 }
 
@@ -333,6 +334,16 @@ function createControl(column: ColumnDefinition, value: unknown): HTMLInputEleme
       control = select;
       break;
     }
+    case "url": {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.inputMode = "url";
+      input.spellcheck = false;
+      input.placeholder = "https://…";
+      input.value = text;
+      control = input;
+      break;
+    }
     default: {
       const input = document.createElement("input");
       input.type = "text";
@@ -343,6 +354,46 @@ function createControl(column: ColumnDefinition, value: unknown): HTMLInputEleme
 
   control.dataset.colId = column.id;
   return control;
+}
+
+const OPEN_LINK_ICON =
+  '<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M9 2h5v5h-1.5V4.6L7.5 9.6 6.4 8.5l5-5H9z"/><path d="M3 4h4v1.5H3.5v7h7V9H12v4a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/></svg>';
+
+/* Only http(s): a stored "javascript:" address must never become a link */
+function isValidUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return (url.protocol === "http:" || url.protocol === "https:") && !!url.hostname;
+  } catch {
+    return false;
+  }
+}
+
+/* The field plus a link to open its URL. The link stays out of the Tab order, like the calendar icon */
+function createUrlField(input: HTMLInputElement): HTMLElement {
+  const field = document.createElement("div");
+  field.className = "url-field";
+
+  const link = document.createElement("a");
+  link.className = "url-open";
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.tabIndex = -1;
+  link.innerHTML = OPEN_LINK_ICON;
+
+  const update = () => {
+    const url = input.value.trim();
+    const valid = isValidUrl(url);
+    if (valid) link.href = url;
+    else link.removeAttribute("href");
+    link.title = valid ? `Abrir en otra pestaña: ${url}` : "Escribe una URL válida para abrirla";
+    link.setAttribute("aria-label", valid ? "Abrir enlace en otra pestaña" : "Enlace no disponible");
+  };
+  input.addEventListener("input", update);
+  update();
+
+  field.append(input, link);
+  return field;
 }
 
 function getControl(tr: Element, columnId: string) {
@@ -499,7 +550,8 @@ function createRow(rowData?: Partial<Row>, after?: Element): HTMLTableRowElement
 
   tableConfig.columns.forEach(col => {
     const cell = document.createElement("td");
-    cell.appendChild(createControl(col, rowData?.[col.id]));
+    const control = createControl(col, rowData?.[col.id]);
+    cell.appendChild(col.dataType === "url" ? createUrlField(control as HTMLInputElement) : control);
     row.appendChild(cell);
   });
 
@@ -539,6 +591,8 @@ function getControlValue(column: ColumnDefinition, control: HTMLInputElement | n
     }
     case "date":
       return toLocalDateTimeValue(control.value);
+    case "url":
+      return control.value.trim();
     default:
       return control.value;
   }
@@ -616,10 +670,10 @@ function dateRuleErrors(rows: Row[]): string[] {
   return [...messages];
 }
 
-/* "Faltan campos obligatorios en la fila 2" / "… en las filas 2, 3 y 5" */
-function requiredFieldsMessage(rows: number[]): string {
-  if (rows.length === 1) return `Faltan campos obligatorios en la fila ${rows[0]}`;
-  return `Faltan campos obligatorios en las filas ${rows.slice(0, -1).join(", ")} y ${rows[rows.length - 1]}`;
+/* "en la fila 2" / "en las filas 2, 3 y 5" */
+function inRows(rows: number[]): string {
+  if (rows.length === 1) return `en la fila ${rows[0]}`;
+  return `en las filas ${rows.slice(0, -1).join(", ")} y ${rows[rows.length - 1]}`;
 }
 
 /* Shows (or clears) the error on top of the work item form, which also blocks saving it */
@@ -642,20 +696,27 @@ function validateTable(): boolean {
   }
 
   const messages: string[] = [];
-  const incompleteRows: number[] = [];
+  const incompleteRows = new Set<number>();
+  const invalidUrlRows = new Set<number>();
   tbody().querySelectorAll("tr").forEach((tr, rowIndex) => {
     tableConfig.columns.forEach(col => {
       // Checkboxes are always valid
-      if (!col.required || col.dataType === "boolean") return;
+      if (col.dataType === "boolean") return;
 
       const control = getControl(tr, col.id);
-      if (control && String(control.value || "").trim() === "") {
-        if (!incompleteRows.includes(rowIndex + 1)) incompleteRows.push(rowIndex + 1);
+      if (!control) return;
+      const value = String(control.value || "").trim();
+      if (!value && col.required) {
+        incompleteRows.add(rowIndex + 1);
         markFieldError(control, REQUIRED_FIELD_MESSAGE);
+      } else if (value && col.dataType === "url" && !isValidUrl(value)) {
+        invalidUrlRows.add(rowIndex + 1);
+        markFieldError(control, INVALID_URL_MESSAGE);
       }
     });
   });
-  if (incompleteRows.length) messages.push(requiredFieldsMessage(incompleteRows));
+  if (incompleteRows.size) messages.push(`Faltan campos obligatorios ${inRows([...incompleteRows])}`);
+  if (invalidUrlRows.size) messages.push(`URL no válida ${inRows([...invalidUrlRows])}: debe empezar con http:// o https://`);
   messages.push(...dateRuleErrors(getRows()));
 
   const message = messages.join(" · ");
