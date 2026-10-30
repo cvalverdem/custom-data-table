@@ -2,7 +2,7 @@
   "manifestVersion": 1,
   "id": "custom-data-table-control-v10",
   "publisher": "CentroDeCompetencias",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "name": "Data Table Extension",
   "description": "Control de tabla configurable para elementos de trabajo de Azure DevOps. Define columnas, tipos de dato y validaciones con JSON. Ideal para planes de cambio, seguimiento de tareas y planificación.",
   "public": false,
@@ -149,6 +149,18 @@
     },
     {
       "path": "images/extension-icon.png",
+      "addressable": true
+    },
+    {
+      "path": "images/tabla-ejemplo.png",
+      "addressable": true
+    },
+    {
+      "path": "images/tabla-errores.png",
+      "addressable": true
+    },
+    {
+      "path": "images/tabla-bloqueada.png",
       "addressable": true
     },
     {
