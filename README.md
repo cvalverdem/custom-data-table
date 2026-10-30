@@ -24,6 +24,7 @@
 - **Reordenar filas**: Arrastra una fila desde el asa ⠿ junto a su número para cambiar su posición (o enfoca el asa y usa las flechas ↑ ↓). El nuevo orden se guarda automáticamente
 - **Duplicar e insertar filas**: Íconos por fila para duplicar una fila o insertar una nueva justo debajo, además de eliminarla. Las acciones visibles se eligen con `rowActions`
 - **Bloqueo por estado**: Con `readOnlyStates` la tabla queda en solo lectura en los estados que indiques (por ejemplo, Finalizado)
+- **Bloqueo del guardado con errores**: Impide guardar el elemento de trabajo mientras la tabla editada tenga errores; se desactiva con `blockSaveOnError`
 - **Valores desde la fila anterior**: Con `defaultFromPrevious` una fila nueva puede arrancar, por ejemplo, con la fecha de fin de la fila anterior como fecha de inicio
 - **Validación de campos requeridos**: Los campos marcados como `required: true` muestran error visual y mensaje si están vacíos
 - **Reglas de validación de fechas**: Compara dos campos de fecha y valida que uno sea menor que el otro
@@ -310,6 +311,26 @@ Agrega `readOnlyStates` al JSON de configuración con los estados del elemento d
 
 ---
 
+## Bloqueo del Guardado con Errores
+
+Si después de editar la tabla quedan errores de validación, Azure DevOps muestra `Tabla de datos: …` arriba del formulario y no deja guardar el elemento de trabajo hasta corregirlos o eliminar la fila.
+
+Para desactivarlo, agrega esta opción al JSON de configuración:
+
+```json
+{
+  "columns": [ ... ],
+  "blockSaveOnError": false
+}
+```
+
+- Sin la opción, o con `true`, el guardado se bloquea.
+- Con `false`, los errores solo se marcan en la tabla y el elemento de trabajo se puede guardar. **Mientras haya errores, ningún cambio de la tabla llega al campo**, ni siquiera los de filas correctas: al guardar, queda la última versión válida y esos cambios se pierden al recargar.
+- Solo se activa al editar la tabla de ese elemento: abrir uno con datos incompletos no impide guardar otros campos.
+- Debe ser `true` o `false` sin comillas; otro valor marca la configuración como inválida.
+
+---
+
 ## Mensajes de Estado
 
 En uso normal la tabla no muestra ningún mensaje de estado. Solo aparece un aviso cuando hay un problema:
@@ -323,7 +344,7 @@ En uso normal la tabla no muestra ningún mensaje de estado. Solo aparece un avi
 | `No se pudo actualizar el campo` | Azure DevOps rechazó el valor |
 | `Error al actualizar el campo (ver consola).` | Error inesperado al guardar |
 
-Los errores de validación (`Debe completar todos los campos`, `La fecha inicial debe ser menor que la fecha final` o el mensaje personalizado de la regla) se muestran en rojo junto al botón **Agregar fila** y también arriba del formulario, lo que impide guardar el elemento de trabajo hasta corregirlos.
+Los errores de validación (`Debe completar todos los campos`, `La fecha inicial debe ser menor que la fecha final` o el mensaje personalizado de la regla) se muestran en rojo junto al botón **Agregar fila**. Después de editar la tabla, también aparecen arriba del formulario e impiden guardar el elemento de trabajo hasta corregirlos, salvo que uses `"blockSaveOnError": false`.
 
 ---
 

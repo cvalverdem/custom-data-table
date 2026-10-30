@@ -35,6 +35,7 @@ interface TableConfiguration {
   rules: ValidationRule[];
   readOnlyStates: string[];  // work item states (System.State) in which the table is locked
   rowActions: RowAction[];   // per-row controls to show; all of them unless configured
+  blockSaveOnError: boolean; // block saving the work item while an edited table is invalid
 }
 
 type Row = { _id: number; [columnId: string]: unknown };
@@ -133,7 +134,8 @@ function defaultConfig(): TableConfiguration {
     ],
     rules: [],
     readOnlyStates: [],
-    rowActions: [...ROW_ACTIONS]
+    rowActions: [...ROW_ACTIONS],
+    blockSaveOnError: true
   };
 }
 
@@ -201,7 +203,12 @@ function getConfiguredTable(): TableConfiguration {
     rowActions = ROW_ACTIONS.filter(a => list.includes(a)); // fixed display order
   }
 
-  return { columns, rules: Array.isArray(candidate.rules) ? candidate.rules : [], readOnlyStates, rowActions };
+  const blockSaveOnError = candidate.blockSaveOnError ?? true;
+  if (typeof blockSaveOnError !== "boolean") {
+    throw new Error('"blockSaveOnError" debe ser true o false, sin comillas');
+  }
+
+  return { columns, rules: Array.isArray(candidate.rules) ? candidate.rules : [], readOnlyStates, rowActions, blockSaveOnError };
 }
 
 /* Apply font configuration (combo inputs) to the page */
@@ -593,7 +600,7 @@ function dateRuleErrors(rows: Row[]): string[] {
 
 /* Shows (or clears) the error on top of the work item form, which also blocks saving it */
 function updateFormError(message: string) {
-  const next = message && tableTouched ? FORM_ERROR_PREFIX + message : "";
+  const next = message && tableTouched && tableConfig.blockSaveOnError ? FORM_ERROR_PREFIX + message : "";
   if (!workItemService || next === formError) return;
 
   formError = next;
