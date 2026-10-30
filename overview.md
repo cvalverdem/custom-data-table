@@ -48,9 +48,11 @@ Si alguna no aparece, es porque la configuración de tu tabla no la incluye.
 
 Los campos con problemas se marcan en rojo y el motivo aparece junto a **Agregar fila**.
 
-![Fila nueva marcada en rojo con el mensaje "Debe completar todos los campos"](images/tabla-errores.png)
+![Fila nueva marcada en rojo con el mensaje "Faltan campos obligatorios en la fila 4"](images/tabla-errores.png)
 
-Mientras la tabla tenga errores, Azure DevOps muestra el aviso `Tabla de datos: …` arriba del formulario y no deja guardar. Completa los datos o elimina la fila para continuar.
+Mientras la tabla tenga errores, Azure DevOps muestra un aviso arriba del formulario, por ejemplo `Tabla de datos: Faltan campos obligatorios en la fila 4`, y no deja guardar. Completa los datos o elimina la fila para continuar.
+
+Si te cambias de pestaña en el formulario, las filas incompletas se conservan al volver. Solo se pierde una fecha a medio escribir.
 
 Una fecha sin hora cuenta como vacía. Si la columna no es obligatoria, no se marca como error, pero tampoco se guarda.
 
@@ -206,6 +208,7 @@ Con `defaultFromPrevious`, una fila nueva toma un valor de la fila anterior:
 - No distingue mayúsculas y minúsculas, pero sí acentos: el nombre debe coincidir con el estado del proceso.
 - También acepta un texto separado por comas: `"Finalizado, Cerrado"`.
 - La tabla también se bloquea sola si Azure DevOps abre el elemento de trabajo en modo de solo lectura.
+- Si cambias a uno de estos estados con filas incompletas sin guardar, Azure DevOps no deja guardar. Vuelve al estado anterior para corregirlas o eliminarlas.
 
 > **Este bloqueo es solo de la interfaz.** Para que el campo tampoco se pueda cambiar por edición masiva, Excel o la API, crea además una regla en el proceso: en **Rules → New rule**, usa la condición *When the work item state is* `Finalizado` y la acción *Make read-only* sobre el campo de la tabla.
 
@@ -218,9 +221,19 @@ Por defecto, si la tabla editada tiene errores, Azure DevOps no deja guardar el 
 ```
 
 - Con `false`, los errores solo se marcan en la tabla y el elemento de trabajo se puede guardar.
-- **Riesgo con `false`:** mientras haya errores, ningún cambio de la tabla llega al campo, ni siquiera los de filas correctas. Al guardar queda la última versión válida y esos cambios se pierden al recargar.
+- **Riesgo con `false`:** las filas incompletas se guardan tal como están.
 - Solo se activa al editar la tabla: abrir un elemento con datos incompletos no impide guardar otros campos.
 - Debe ser `true` o `false`, sin comillas.
+
+## Nombre de la tabla en los avisos
+
+`tableName` define cómo se nombra la tabla en el aviso de arriba del formulario. Por defecto es *Tabla de datos*. Es útil si el formulario tiene más de una tabla:
+
+```json
+"tableName": "Plan de rollback"
+```
+
+Con esa opción, el aviso dice `Plan de rollback: Faltan campos obligatorios en la fila 2`.
 
 ## Más ejemplos
 
@@ -259,7 +272,7 @@ En uso normal, la tabla no muestra mensajes de estado. Solo aparece un aviso si 
 |---|---|---|
 | `⚠️ Configuración de columnas inválida: …` | El JSON tiene un error. La tabla no se muestra y no se lee ni se escribe el campo, para no dañar los datos | Corrige lo que indica el mensaje en las opciones del control |
 | `⚠️ Campo no encontrado o no editable: …` | El campo configurado no existe en ese tipo de elemento de trabajo | Revisa el campo de datos en las opciones del control |
-| `Debe completar todos los campos` | Hay una celda obligatoria vacía. Una fecha sin hora cuenta como vacía | Completa la fila o elimínala |
+| `Faltan campos obligatorios en la fila …` | Hay una celda obligatoria vacía en esa fila. Una fecha sin hora cuenta como vacía | Completa la fila o elimínala |
 | `La fecha inicial debe ser menor que la fecha final` | No se cumple una regla de fechas. El texto puede variar según la configuración | Corrige las fechas de la fila marcada |
 | `No se pudo actualizar el campo` | Azure DevOps rechazó el valor | Comprueba que puedes editar el campo y vuelve a intentarlo |
 | `Error al actualizar el campo (ver consola).` | Ocurrió un error inesperado al escribir en el campo | Recarga la página. Si continúa, reporta el problema |

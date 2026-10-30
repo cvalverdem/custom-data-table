@@ -36,17 +36,18 @@ interface TableConfiguration {
   readOnlyStates: string[];  // work item states (System.State) in which the table is locked
   rowActions: RowAction[];   // per-row controls to show; all of them unless configured
   blockSaveOnError: boolean; // block saving the work item while an edited table is invalid
+  tableName: string;         // how the error on top of the form names this table
 }
 
 type Row = { _id: number; [columnId: string]: unknown };
 
 const WORK_ITEM_FORM_SERVICE = "ms.vss-work-web.work-item-form";
 const DEFAULT_FIELD = "Custom.DataTableJSON";
-const REQUIRED_MESSAGE = "Debe completar todos los campos";
+const REQUIRED_FIELD_MESSAGE = "Este campo es obligatorio";
 const CALENDAR_ICON_WIDTH = 28; // px at the right edge of a date field that open the calendar
 const DATE_ORDER_MESSAGE = "La fecha inicial debe ser menor que la fecha final";
 const DROPDOWN_PLACEHOLDER = "— Seleccione —";
-const FORM_ERROR_PREFIX = "Tabla de datos: ";
+const DEFAULT_TABLE_NAME = "Tabla de datos";
 
 let workItemService: IWorkItemFormService | null = null;
 let dataFieldRefName = DEFAULT_FIELD;
@@ -136,7 +137,8 @@ function defaultConfig(): TableConfiguration {
     rules: [],
     readOnlyStates: [],
     rowActions: [...ROW_ACTIONS],
-    blockSaveOnError: true
+    blockSaveOnError: true,
+    tableName: DEFAULT_TABLE_NAME
   };
 }
 
@@ -209,7 +211,19 @@ function getConfiguredTable(): TableConfiguration {
     throw new Error('"blockSaveOnError" debe ser true o false, sin comillas');
   }
 
-  return { columns, rules: Array.isArray(candidate.rules) ? candidate.rules : [], readOnlyStates, rowActions, blockSaveOnError };
+  const tableName = candidate.tableName ?? DEFAULT_TABLE_NAME;
+  if (typeof tableName !== "string" || !tableName.trim()) {
+    throw new Error('"tableName" debe ser un texto, por ejemplo "Plan de rollback"');
+  }
+
+  return {
+    columns,
+    rules: Array.isArray(candidate.rules) ? candidate.rules : [],
+    readOnlyStates,
+    rowActions,
+    blockSaveOnError,
+    tableName: tableName.trim()
+  };
 }
 
 /* Apply font configuration (combo inputs) to the page */
@@ -601,9 +615,15 @@ function dateRuleErrors(rows: Row[]): string[] {
   return [...messages];
 }
 
+/* "Faltan campos obligatorios en la fila 2" / "… en las filas 2, 3 y 5" */
+function requiredFieldsMessage(rows: number[]): string {
+  if (rows.length === 1) return `Faltan campos obligatorios en la fila ${rows[0]}`;
+  return `Faltan campos obligatorios en las filas ${rows.slice(0, -1).join(", ")} y ${rows[rows.length - 1]}`;
+}
+
 /* Shows (or clears) the error on top of the work item form, which also blocks saving it */
 function updateFormError(message: string) {
-  const next = message && tableTouched && tableConfig.blockSaveOnError ? FORM_ERROR_PREFIX + message : "";
+  const next = message && tableTouched && tableConfig.blockSaveOnError ? `${tableConfig.tableName}: ${message}` : "";
   if (!workItemService || next === formError) return;
 
   formError = next;
@@ -613,27 +633,28 @@ function updateFormError(message: string) {
 
 function validateTable(): boolean {
   clearValidationState();
-  // A locked table can't be fixed, so it must never block saving the work item (e.g. while closing it)
-  if (lockReason) {
+  // A locked table can't be fixed, so what it already holds must not block saving the work item.
+  // Unsaved edits still count: closing the work item can't save a table left incomplete
+  if (lockReason && !tableTouched) {
     updateFormError("");
     return true;
   }
 
   const messages: string[] = [];
-  let hasRequiredError = false;
-  tbody().querySelectorAll("tr").forEach(tr => {
+  const incompleteRows: number[] = [];
+  tbody().querySelectorAll("tr").forEach((tr, rowIndex) => {
     tableConfig.columns.forEach(col => {
       // Checkboxes are always valid
       if (!col.required || col.dataType === "boolean") return;
 
       const control = getControl(tr, col.id);
       if (control && String(control.value || "").trim() === "") {
-        hasRequiredError = true;
-        markFieldError(control, REQUIRED_MESSAGE);
+        if (!incompleteRows.includes(rowIndex + 1)) incompleteRows.push(rowIndex + 1);
+        markFieldError(control, REQUIRED_FIELD_MESSAGE);
       }
     });
   });
-  if (hasRequiredError) messages.push(REQUIRED_MESSAGE);
+  if (incompleteRows.length) messages.push(requiredFieldsMessage(incompleteRows));
   messages.push(...dateRuleErrors(getRows()));
 
   const message = messages.join(" · ");
@@ -647,7 +668,9 @@ function validateTable(): boolean {
 // The status line stays empty in normal use (as in 1.4.0) and only reports problems
 async function syncToField(): Promise<boolean> {
   if (!workItemService || lockReason) return false;
-  if (!validateTable()) return false;
+  // Invalid rows are written too: the form recreates this iframe when switching tabs and the
+  // field is all that survives, while the form error keeps them from being saved
+  validateTable();
 
   const payload = JSON.stringify(getRows());
   if (payload === lastSyncedPayload) return true;
@@ -757,6 +780,26 @@ function parseStoredRows(value: unknown): Partial<Row>[] {
   return [];
 }
 
+/* Unsaved changes in the field come from this table, before the form recreated its iframe */
+async function fieldHasUnsavedChanges(): Promise<boolean> {
+  try {
+    const dirtyFields = await workItemService!.getDirtyFields();
+    return dirtyFields.some(f => f.referenceName.toLowerCase() === dataFieldRefName.toLowerCase());
+  } catch (e) {
+    console.error("No se pudieron consultar los campos modificados:", e);
+    return false;
+  }
+}
+
+/* The form error outlives this iframe. With nothing unsaved in the work item, no table needs it */
+async function clearStaleFormError() {
+  try {
+    if (!formError && !(await workItemService!.isDirty())) await workItemService!.clearError();
+  } catch (e) {
+    console.error("Error al actualizar el estado del formulario:", e);
+  }
+}
+
 async function load() {
   if (!workItemService) return;
   // A pending sync belongs to the table being replaced (possibly another work item)
@@ -764,9 +807,10 @@ async function load() {
   try {
     const value = await workItemService.getFieldValue(dataFieldRefName);
     lockReason = await computeLockReason();
+    const unsavedChanges = await fieldHasUnsavedChanges();
 
     isLoadingData = true;
-    tableTouched = false;
+    tableTouched = unsavedChanges;
     tbody().innerHTML = "";
     parseStoredRows(value).forEach(row => createRow(row));
     // Baseline on what the table would write, so just opening the work item doesn't dirty it
@@ -774,6 +818,7 @@ async function load() {
     isLoadingData = false;
 
     validateTable();
+    await clearStaleFormError();
     applyLock();
     SDK.resize();
   } catch (e) {
@@ -873,6 +918,9 @@ function wireEvents() {
   });
   window.addEventListener("blur", closeCalendar);
 
+  // Save before the form can recreate this iframe, e.g. when clicking another form tab
+  window.addEventListener("blur", syncNow);
+
   // Save when user switches tabs/minimizes
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) syncNow();
@@ -964,6 +1012,9 @@ const provider = {
   onFieldChanged: async (args: any) => {
     const changed = args?.changedFields;
     if (!changed) return;
+
+    // The form has one error: another table on the form may have just cleared this table's
+    if (formError) workItemService?.setError(formError).catch(e => console.error("Error al actualizar el estado del formulario:", e));
 
     // State change: keep edits made before it, then re-render locked/unlocked
     if ("System.State" in changed && tableConfig.readOnlyStates.length) {

@@ -1,5 +1,23 @@
 # Historial de cambios
 
+## 1.5.2
+
+### Agregado
+
+- **`tableName`:** define cómo se nombra la tabla en el aviso de arriba del formulario.
+
+### Cambiado
+
+- **Mensaje de campos obligatorios:** ahora indica las filas, por ejemplo `Faltan campos obligatorios en la fila 2`.
+- **`blockSaveOnError: false`:** las filas incompletas ahora se guardan tal como están. Antes se perdían todos los cambios sin guardar de la tabla.
+- **Estados de solo lectura:** no se puede guardar el cambio a uno de estos estados si la tabla tiene filas incompletas sin guardar.
+
+### Corregido
+
+- **Cambio de pestaña:** las filas incompletas se conservan al cambiar de pestaña en el formulario.
+- **Aviso obsoleto:** el aviso de arriba del formulario ya no queda activo después de que la tabla se recarga sin cambios pendientes.
+- **Barra de desplazamiento:** ya no aparece una barra vertical en el control, porque ahora toma la altura completa de la tabla.
+
 ## 1.5.1
 
 ### Corregido
